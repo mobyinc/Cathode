@@ -14,7 +14,7 @@ module Cathode
 
     def require_resource_constant!(resource_name)
       unless Rails::Application.const_defined? resource_name.to_s.singularize.camelize
-        raise NameError
+        raise UnknownResourceError
       end
     end
   end
