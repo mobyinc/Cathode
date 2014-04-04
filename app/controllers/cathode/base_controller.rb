@@ -1,11 +1,23 @@
 class Cathode::BaseController < ActionController::Base
   def index
-    render json: resource.all
+    render json: resources.load
+  end
+
+  def show
+    render json: resource
   end
 
 private
 
+  def resources
+    model.all
+  end
+
   def resource
-    @resource ||= controller_name.classify.constantize
+    model.find params[:id]
+  end
+
+  def model
+    controller_name.classify.constantize
   end
 end

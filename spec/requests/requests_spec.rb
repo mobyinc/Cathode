@@ -1,16 +1,28 @@
 require 'spec_helper'
 
 describe 'Requests' do
-  describe 'GET #index' do
-    subject { get 'api/products' }
-
-    before { use_api %Q{resource :products, actions: [:index]} }
-
+  context 'with the default API (all actions)' do
+    # TODO: Change this so it resets the routes after each test run so we can
+    # easily run against different API configurations
+    before(:all) { use_api %Q{resource :products, actions: [:index]} }
     let!(:products) { create_list(:product, 5) }
 
-    it 'responds with all records' do
-      subject
-      expect(response.body).to eq(products.to_json)
+    describe 'GET #index' do
+      subject { get 'api/products' }
+
+      it 'responds with all records' do
+        subject
+        expect(response.body).to eq(products.to_json)
+      end
+    end
+
+    describe 'GET #show' do
+      subject { get 'api/products/1' }
+
+      it 'responds with the record' do
+        subject
+        expect(response.body).to eq(products.first.to_json)
+      end
     end
   end
 end
