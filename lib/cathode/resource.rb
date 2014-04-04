@@ -5,8 +5,10 @@ module Cathode
 
       Cathode.const_set "#{resource_name.to_s.camelize}Controller", Class.new(Cathode::BaseController)
 
+      routes_to_add = params[:actions] == [:all] ? [:index, :show, :create, :update, :destroy] : params[:actions]
+
       Cathode::Engine.routes.draw do
-        resources resource_name
+        resources resource_name, only: routes_to_add
       end
     end
 
