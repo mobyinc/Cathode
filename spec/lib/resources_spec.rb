@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Cathode::Resource do
   describe '.new' do
     context 'with a nonexistent resource' do
-      subject { Class.new(Cathode::Base) { resource :boxes, actions: [:all] } }
+      subject { Cathode::Resource.new(:boxes, [:all]) }
 
       it 'raises an error' do
         expect { subject }.to raise_error(Cathode::UnknownResourceError)
@@ -11,11 +11,7 @@ describe Cathode::Resource do
     end
 
     context 'with an existing resource' do
-      before do
-        Rails::Application.class_eval 'class Product < ActiveRecord::Base; end'
-      end
-
-      subject { Class.new(Cathode::Base) { resource :products, actions: [:all] } }
+      subject { Cathode::Resource.new(:products, [:all]) }
 
       it 'creates a controller' do
         subject
