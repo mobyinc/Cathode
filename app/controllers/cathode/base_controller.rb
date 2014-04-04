@@ -1,6 +1,6 @@
 class Cathode::BaseController < ActionController::Base
   def index
-    binding.pry
+    render json: resource.all
   end
 
 private
