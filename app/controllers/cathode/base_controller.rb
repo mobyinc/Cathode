@@ -7,6 +7,15 @@ class Cathode::BaseController < ActionController::Base
     render json: resource
   end
 
+  def create
+    render json: model.create(resource_params)
+  end
+
+  def destroy
+    resource.destroy
+    head :ok
+  end
+
 private
 
   def resources
@@ -15,6 +24,10 @@ private
 
   def resource
     model.find params[:id]
+  end
+
+  def resource_params
+    params[controller_name.singularize]
   end
 
   def model
