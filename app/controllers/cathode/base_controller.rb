@@ -16,6 +16,10 @@ class Cathode::BaseController < ActionController::Base
     head :ok
   end
 
+  def allows_pagination?
+    @allows_pagination
+  end
+
 private
 
   def resources

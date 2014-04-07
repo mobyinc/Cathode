@@ -1,5 +1,6 @@
 require 'pry'
 require 'cathode/resource'
+require 'cathode/action'
 
 module Cathode
   class Base

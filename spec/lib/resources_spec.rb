@@ -55,6 +55,24 @@ describe Cathode::Resource do
           expect { Cathode::Engine.routes.recognize_path('products/1', method: :delete) }.to raise_error
         end
       end
+
+      context 'with a block action' do
+        subject { Cathode::Resource.new(:products, &block) }
+
+        context 'and plain actions' do
+          let(:block) { proc { action :index } }
+
+          it 'adds the route' do
+            subject
+            expect(Cathode::Engine.routes.recognize_path('products', method: :get)).to be_true
+          end
+
+          it 'does not add other actions' do
+            subject
+            expect { Cathode::Engine.routes.recognize_path('products', method: :post) }.to raise_error
+          end
+        end
+      end
     end
   end
 end
