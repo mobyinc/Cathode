@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Requests' do
+describe 'API' do
   context 'with the default API (all actions)' do
     before(:all) do
       use_api %Q{
@@ -39,6 +39,40 @@ describe 'Requests' do
 
     describe 'DELETE #destroy' do
       subject { delete 'api/products/1' }
+
+      it 'responds with success' do
+        expect(subject).to eq(200)
+      end
+    end
+  end
+
+  context 'with an access filter' do
+    subject { get 'api/products/1' }
+
+    let!(:products) { create_list(:product, 5) }
+
+    context 'when inaccessible' do
+      before(:all) do
+        use_api %Q{
+          resource :products do
+            action(:show) { access_filter { false } }
+          end
+        }
+      end
+
+      it 'responds with unauthorized' do
+        expect(subject).to eq(401)
+      end
+    end
+
+    context 'when accessible' do
+      before(:all) do
+        use_api %Q{
+          resource :products do
+            action(:show) { access_filter { true } }
+          end
+        }
+      end
 
       it 'responds with success' do
         expect(subject).to eq(200)

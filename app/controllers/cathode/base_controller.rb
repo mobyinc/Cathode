@@ -1,10 +1,8 @@
 class Cathode::BaseController < ActionController::Base
+  before_action :process_access_filter
+
   def index
     render json: resources.load
-  end
-
-  def show
-    render json: resource
   end
 
   def create
@@ -16,11 +14,16 @@ class Cathode::BaseController < ActionController::Base
     head :ok
   end
 
-  def allows_pagination?
-    @allows_pagination
+  def show
+    make_request
   end
 
 private
+
+  def make_request
+    request = Cathode::Request.new(params)
+    render json: request.body, status: request.status
+  end
 
   def resources
     model.all
@@ -36,5 +39,9 @@ private
 
   def model
     controller_name.classify.constantize
+  end
+
+  def process_access_filter
+
   end
 end
