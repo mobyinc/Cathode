@@ -39,18 +39,6 @@ module Cathode
 
   private
 
-    def resources
-      model.all
-    end
-
-    def aasdresource
-      model.find params[:id]
-    end
-
-    def resource_params
-      params[controller_name.singularize]
-    end
-
     def model
       resource.to_s.camelize.singularize.constantize
     end
@@ -60,7 +48,11 @@ module Cathode
     end
   end
 
-  class IndexAction < Action; end
+  class IndexAction < Action
+    def perform_action(params)
+      model.all
+    end
+  end
 
   class ShowAction < Action
     def perform_action(params)
