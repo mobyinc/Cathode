@@ -18,4 +18,13 @@ RSpec.configure do |config|
   config.order = "random"
   config.include FactoryGirl::Syntax::Methods
   config.include SpecHelpers
+
+  config.after(:each) do
+    Cathode::BaseController.subclasses.each do |controller|
+      name = controller.name.try(:demodulize)
+      if name.present? && Cathode.const_defined?(name)
+        Cathode.send(:remove_const, name.to_sym)
+      end
+    end
+  end
 end

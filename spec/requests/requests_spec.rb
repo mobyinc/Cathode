@@ -2,8 +2,6 @@ require 'spec_helper'
 
 describe 'Requests' do
   context 'with the default API (all actions)' do
-    # TODO: Change this so it resets the routes after each test run so we can
-    # easily run against different API configurations
     before(:all) do
       use_api %Q{
         resource :products, actions: [:all]
