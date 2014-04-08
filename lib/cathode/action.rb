@@ -60,9 +60,23 @@ module Cathode
     end
   end
 
-  class CreateAction < Action; end
+  class CreateAction < Action
+    def perform_action(params)
+      model.create params
+    end
+  end
 
-  class UpdateAction < Action; end
+  class UpdateAction < Action
+    def perform_action(params)
+      record = model.find(params[:id])
+      record.update params
+      record.reload
+    end
+  end
 
-  class DestroyAction < Action; end
+  class DestroyAction < Action
+    def perform_action(params)
+      model.find(params[:id]).destroy
+    end
+  end
 end
