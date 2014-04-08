@@ -2,7 +2,7 @@ require 'pry'
 require 'cathode/request'
 require 'cathode/resource'
 require 'cathode/action'
-require 'cathode/versioning'
+require 'cathode/version'
 
 module Cathode
   class Base
