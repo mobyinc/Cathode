@@ -1,3 +1,6 @@
+**This gem is under heavy development and is not ready to be used in product
+systems.**
+
 # Cathode
 Cathode is a gem for Rails projects that generates API boilerplate for REST
 applications.
