@@ -3,9 +3,11 @@ module Cathode
     attr_reader :body,
                 :status
 
-    def initialize(params)
+    def initialize(http_request, params)
+      version = http_request.headers['HTTP_ACCEPT_VERSION']
+
       resource = params['controller'].camelize.demodulize.downcase.to_sym
-      response = Cathode::Base.resources[resource].actions[params[:action].to_sym].perform(params)
+      response = Version.perform_request_with_version(version, resource, params)
 
       @status, @body = response[:status], response[:body]
     end

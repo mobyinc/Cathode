@@ -1,53 +1,27 @@
 require 'spec_helper'
 
 describe Cathode::Base do
+  describe '#version' do
+    subject { Cathode::Base.version 1.5 do
+      resource :products
+    end }
+
+    it 'creates a new version' do
+      expect(subject.version).to eq('1.5.0')
+    end
+
+    it 'contains the resources' do
+      expect(subject.resources.keys).to eq([:products])
+    end
+  end
+
   describe '#resource' do
     context 'with resource name' do
-      subject { Cathode::Base.resource(:boxes) }
+      subject { Cathode::Base.resource(:products) }
 
-      it 'initializes a new resource with no params' do
-        expect(Cathode::Resource).to receive(:new) do |resource_name|
-          expect(resource_name).to eq(:boxes)
-        end
+      it 'initializes version 1.0.0' do
         subject
-      end
-    end
-
-    context 'with resource name and params' do
-      subject { Cathode::Base.resource(:boxes, actions: [:all]) }
-
-      it 'initializes a new resource with the params' do
-        expect(Cathode::Resource).to receive(:new) do |resource_name, params|
-          expect(resource_name).to eq(:boxes)
-          expect(params).to eq(actions: [:all])
-        end
-        subject
-      end
-    end
-
-    context 'with resource name and block' do
-      subject { Cathode::Base.resource(:boxes) { action :index } }
-
-      it 'initializes a new resource with the block' do
-        expect(Cathode::Resource).to receive(:new) do |resource_name, params, &block|
-          expect(resource_name).to eq(:boxes)
-          expect(params).to eq(nil)
-          expect(block.is_a?(Proc)).to be_true
-        end
-        subject
-      end
-    end
-
-    context 'with resource name, params, and block' do
-      subject { Cathode::Base.resource(:boxes, actions: [:all]) { action :index } }
-
-      it 'initializes a new resource with the params and block' do
-        expect(Cathode::Resource).to receive(:new) do |resource_name, params, &block|
-          expect(resource_name).to eq(:boxes)
-          expect(params).to eq(actions: [:all])
-          expect(block.is_a?(Proc)).to be_true
-        end
-        subject
+        expect(Cathode::Version.all['1.0.0'].resources[:products]).to_not be_nil
       end
     end
   end

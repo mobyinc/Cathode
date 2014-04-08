@@ -15,13 +15,13 @@ class Cathode::BaseController < ActionController::Base
   end
 
   def show
-    make_request
+    make_request(request)
   end
 
 private
 
-  def make_request
-    request = Cathode::Request.new(params)
+  def make_request(http_request)
+    request = Cathode::Request.new(http_request, params)
     render json: request.body, status: request.status
   end
 

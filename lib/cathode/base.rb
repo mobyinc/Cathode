@@ -2,20 +2,26 @@ require 'pry'
 require 'cathode/request'
 require 'cathode/resource'
 require 'cathode/action'
+require 'cathode/versioning'
 
 module Cathode
   class Base
-    attr_reader :resources
-
-    @@resources = {}
+    @@versions = {}
 
     class << self
-      def resources
-        @@resources
+      def resource(resource_name, params = nil, &block)
+        version 1 do
+          resource resource_name, params, &block
+        end
       end
 
-      def resource(resource_name, params = nil, &block)
-        resources[resource_name] = Resource.new(resource_name, params, &block)
+      def versions
+        @@versions
+      end
+
+      def version(version_number, &block)
+        version = Version.new(version_number, &block)
+        versions[version.version.to_s] = version
       end
     end
   end
