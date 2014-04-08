@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/mobyinc/cathode'
   s.summary     = 'API boilerplate for RESTful applications'
   s.description = 'Provides API boilerplate (routes + controllers) for REST actions, with robust support for versioning'
-  s.license = 'MIT'
+  s.license     = 'MIT'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
   s.test_files = Dir['spec/**/*']
