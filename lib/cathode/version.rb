@@ -35,8 +35,14 @@ module Cathode
         version_parts.join '.'
       end
 
-      def perform_request_with_version(version, resource, params)
-        Version.all[standardize(version)].perform_request resource, params
+      def perform_request_with_version(version_number, resource, params)
+        version = Version.all[standardize(version_number)]
+
+        if version.present?
+          version.perform_request resource, params
+        else
+          { status: 400, body: "Unknown API version: #{version_number}" }
+        end
       end
     end
 

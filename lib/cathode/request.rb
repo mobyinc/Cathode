@@ -6,8 +6,12 @@ module Cathode
     def initialize(http_request, params)
       version = http_request.headers['HTTP_ACCEPT_VERSION']
 
-      resource = params['controller'].camelize.demodulize.downcase.to_sym
-      response = Version.perform_request_with_version(version, resource, params)
+      if version.nil?
+        response = { status: 400, body: 'Accept-Version header was not passed' }
+      else
+        resource = params['controller'].camelize.demodulize.downcase.to_sym
+        response = Version.perform_request_with_version(version, resource, params)
+      end
 
       @status, @body = response[:status], response[:body]
     end
