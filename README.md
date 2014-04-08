@@ -1,4 +1,4 @@
-**This gem is under heavy development and is not ready to be used in product
+**This gem is under heavy development and is not ready to be used in production
 systems.**
 
 # Cathode
