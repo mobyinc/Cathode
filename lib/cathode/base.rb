@@ -3,6 +3,7 @@ require 'cathode/request'
 require 'cathode/resource'
 require 'cathode/action'
 require 'cathode/version'
+require 'cathode/railtie'
 
 module Cathode
   class Base

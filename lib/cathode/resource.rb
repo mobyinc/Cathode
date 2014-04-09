@@ -19,10 +19,6 @@ module Cathode
       end
       self.instance_eval &block if block_given?
       actions = @actions
-
-      Cathode::Engine.routes.draw do
-        resources resource_name, only: actions.keys
-      end
     end
 
   private

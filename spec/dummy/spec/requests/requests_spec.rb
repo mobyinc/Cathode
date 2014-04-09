@@ -51,53 +51,62 @@ describe 'API' do
       use_api do
         version 1.5 do
           resource :products, actions: [:all]
+          resource :sales, actions: [:index, :show]
         end
       end
     end
 
     let!(:products) { create_list(:product, 5) }
 
-    describe 'index' do
-      request_spec :get, 'api/products', nil do
-        it 'responds with all records' do
-          subject
-          expect(response.body).to eq(products.to_json)
+    describe 'resources with all actions' do
+      describe 'index' do
+        request_spec :get, 'api/products', nil do
+          it 'responds with all records' do
+            subject
+            expect(response.body).to eq(products.to_json)
+          end
+        end
+      end
+
+      describe 'show' do
+        request_spec :get, 'api/products/1' do
+          it 'responds with all records' do
+            subject
+            expect(response.body).to eq(products.first.to_json)
+          end
+        end
+      end
+
+      describe 'create' do
+        request_spec :post, 'api/products', product: { title: 'hello', cost: 1900 } do
+          it 'responds with the new record' do
+            subject
+            expect(response.body).to eq(Product.new(title: 'hello', cost: 1900).to_json)
+          end
+        end
+      end
+
+      describe 'update' do
+        request_spec :put, 'api/products/1', product: { title: 'goodbye' } do
+          it 'responds with the new record' do
+            subject
+            expect(JSON.parse(response.body)['title']).to eq('goodbye')
+          end
+        end
+      end
+
+      describe 'destroy' do
+        request_spec :delete, 'api/products/5' do
+          it 'responds with success' do
+            expect(subject).to eq(200)
+          end
         end
       end
     end
 
-    describe 'show' do
-      request_spec :get, 'api/products/1' do
-        it 'responds with all records' do
-          subject
-          expect(response.body).to eq(products.first.to_json)
-        end
-      end
-    end
-
-    describe 'create' do
-      request_spec :post, 'api/products', product: { title: 'hello', cost: 1900 } do
-        it 'responds with the new record' do
-          subject
-          expect(response.body).to eq(Product.new(title: 'hello', cost: 1900).to_json)
-        end
-      end
-    end
-
-    describe 'update' do
-      request_spec :put, 'api/products/1', product: { title: 'goodbye' } do
-        it 'responds with the new record' do
-          subject
-          expect(JSON.parse(response.body)['title']).to eq('goodbye')
-        end
-      end
-    end
-
-    describe 'destroy' do
-      request_spec :delete, 'api/products/5' do
-        it 'responds with success' do
-          expect(subject).to eq(200)
-        end
+    describe 'resources with only some actions' do
+      it 'does not add the non-specified actions' do
+        pending
       end
     end
   end
