@@ -19,9 +19,9 @@ applications.
 * Auto-documentation
 
 ## Getting Started
-To generate the `api` directory and mount the engine:
+Mount the Cathode engine in your `config/routes.rb` file:
 ```ruby
-rails generate cool
+mount Cathode::Engine => '/api' # use a namespace of your choice
 ```
 
 *Note: Your API can be defined using the `resource` method in your `api/api.rb` file,
@@ -44,6 +44,34 @@ api/products/{id}`, and `get api/products/search`. By default, all products will
 be returned in the `index` call, and no permissions will be enforced on the
 `show` call. By default, the `search` call will take a `query` parameter and
 search for it using the `Product.title` field.
+
+### `create` and `update` actions
+Because ActiveModel prevents you from writing non-whitelisted attributes, you’ll
+have to declare an attributes whitelist when you define a `create` or `update`
+action:
+
+```ruby
+# use the same attribute whitelist for `create` and `update`
+resource :products do
+  attributes :title, :description, :cost
+end
+
+# use different attribute whitelists for `create` and `update`
+resource :products do
+  action :create do
+    attributes :title, :description, :cost
+  end
+
+  action :update do
+    attributes :description, :cost
+  end
+end
+```
+
+Requests that attempt to write non-whitelisted attributes will respond with `400
+Bad Request`.
+
+**TODO: Integrate with strong params**
 
 ## Serialization
 Cathode doesn’t do any explicit serialization of resources when responding to
@@ -73,9 +101,7 @@ end
 version 2 do
   # the products resource is inherited from version 1.1, except we explicitly
   # remove the `search` action
-  resource :products
-    remove_action :search
-  end
+  remove_action :products, :search
 end
 ```
 

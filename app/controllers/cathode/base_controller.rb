@@ -8,9 +8,11 @@ class Cathode::BaseController < ActionController::Base
   end
 
   def create
+    make_request request
   end
 
   def update
+    make_request request
   end
 
   def destroy

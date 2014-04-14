@@ -5,5 +5,7 @@ module SpecHelpers
 
   def use_api(&block)
     Class.new(Cathode::Base).class_eval &block
+
+    Rails.application.reload_routes!
   end
 end
