@@ -58,8 +58,31 @@ module Cathode
       @resources[resource] = Resource.new(resource, params, &block)
     end
 
-    def remove_resource(resource)
-      @resources.delete(resource)
+    def remove_resource(resources)
+      resources = [resources] unless resources.is_a?(Array)
+
+      resources.each do |resource|
+        if @resources[resource].nil?
+          raise UnknownResourceError, "Unknown resource `#{resource}'"
+        end
+
+        @resources.delete(resource)
+      end
     end
+
+    def remove_action(resource, actions)
+      actions = [actions] unless actions.is_a?(Array)
+
+      actions.each do |action|
+        if @resources[resource].actions[action].nil?
+          raise UnknownActionError, "Unknown action `#{action}' on resource `#{resource}'"
+        end
+
+        @resources[resource].actions.delete action
+      end
+    end
+
+    alias_method :remove_resources, :remove_resource
+    alias_method :remove_actions, :remove_action
   end
 end
