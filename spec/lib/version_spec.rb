@@ -1,6 +1,42 @@
 require 'spec_helper'
 
 describe Cathode::Version do
+  describe '.standardize' do
+    subject { Cathode::Version.standardize(version) }
+
+    context 'with integer' do
+      let(:version) { 1 }
+
+      it 'sets the semantic version' do
+        expect(subject).to eq('1.0.0')
+      end
+    end
+
+    context 'with float' do
+      let(:version) { 1.5 }
+
+      it 'sets the semantic version' do
+        expect(subject).to eq('1.5.0')
+      end
+    end
+
+    context 'with string' do
+      let(:version) { '1.5.1' }
+
+      it 'sets the semantic version' do
+        expect(subject).to eq('1.5.1')
+      end
+    end
+
+    context 'with prerelease' do
+      let(:version) { '1.6.0-pre' }
+
+      it 'sets the semantic version' do
+        expect(subject).to eq('1.6.0-pre')
+      end
+    end
+  end
+
   describe '.new' do
     subject { Cathode::Version.new(version, &block) }
 
@@ -12,40 +48,6 @@ describe Cathode::Version do
 
         it 'raises an error' do
           expect { subject }.to raise_error(ArgumentError)
-        end
-      end
-
-      context 'with good version' do
-        context 'with integer' do
-          let(:version) { 1 }
-
-          it 'sets the semantic version' do
-            expect(subject.version).to eq('1.0.0')
-          end
-        end
-
-        context 'with float' do
-          let(:version) { 1.5 }
-
-          it 'sets the semantic version' do
-            expect(subject.version).to eq('1.5.0')
-          end
-        end
-
-        context 'with string' do
-          let(:version) { '1.5.1' }
-
-          it 'sets the semantic version' do
-            expect(subject.version).to eq('1.5.1')
-          end
-        end
-
-        context 'with prerelease' do
-          let(:version) { '1.6.0-pre' }
-
-          it 'sets the semantic version' do
-            expect(subject.version).to eq('1.6.0-pre')
-          end
         end
       end
     end

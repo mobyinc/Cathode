@@ -110,4 +110,13 @@ describe 'API' do
       end
     end
   end
+
+  context 'with cascading versions' do
+    it 'inherits from previous versions' do
+      make_request :get, 'api/products', nil, '1.0'
+      expect { make_request :get, 'api/sales', nil, '1.0' }.to raise_error
+      make_request :get, 'api/sales', nil, '1.0.1'
+      make_request :get, 'api/products', nil, '1.0.1'
+    end
+  end
 end

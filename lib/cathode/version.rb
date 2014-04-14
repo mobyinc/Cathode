@@ -2,7 +2,8 @@ require 'semantic'
 
 module Cathode
   class Version
-    attr_reader :resources,
+    attr_reader :ancestor,
+                :resources,
                 :version
 
     @@all = {}
@@ -10,6 +11,11 @@ module Cathode
     def initialize(version_number, &block)
       @version = Semantic::Version.new Version.standardize(version_number)
       @resources = {}
+
+      if Version.all.present?
+        @ancestor = Version.all.values.last
+        @resources = @ancestor.resources.clone
+      end
 
       self.instance_eval &block if block_given?
 
