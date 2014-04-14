@@ -57,5 +57,9 @@ module Cathode
     def resource(resource, params = nil, &block)
       @resources[resource] = Resource.new(resource, params, &block)
     end
+
+    def remove_resource(resource)
+      @resources.delete(resource)
+    end
   end
 end

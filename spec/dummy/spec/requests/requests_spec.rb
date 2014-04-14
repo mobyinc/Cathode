@@ -1,5 +1,15 @@
 require 'spec_helper'
 
+class API < Cathode::Base
+    resource :products, actions: [:all]
+    version '1.0.1' do
+      resource :sales, actions: [:index, :show]
+    end
+    version 1.1 do
+      remove_resource :sales
+    end
+end
+
 def make_request(method, path, params = nil, version = '1.0.0')
   send(method, path, params, { 'Accept-Version' => version })
 end
@@ -31,6 +41,9 @@ def request_spec(method, path, params = nil, &block)
 end
 
 describe 'API' do
+  before do
+  end
+
   context 'with no explicit version' do
     before(:all) do
       use_api do
@@ -116,7 +129,7 @@ describe 'API' do
       make_request :get, 'api/products', nil, '1.0'
       expect { make_request :get, 'api/sales', nil, '1.0' }.to raise_error
       make_request :get, 'api/sales', nil, '1.0.1'
-      make_request :get, 'api/products', nil, '1.0.1'
+      expect { make_request :get, 'api/sales', nil, '1.1.0' }.to raise_error
     end
   end
 end

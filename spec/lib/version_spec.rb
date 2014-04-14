@@ -39,66 +39,94 @@ describe Cathode::Version do
 
   describe '.new' do
     subject { Cathode::Version.new(version, &block) }
+    let(:version) { 1 }
+    before(:each) do
+      Cathode::Version.all.clear
+    end
 
-    describe 'creation of semvers with flexible version input' do
+    context 'with bad version number' do
+      let(:version) { 'a' }
       let(:block) { nil }
 
-      context 'with bad version number' do
-        let(:version) { 'a' }
-
-        it 'raises an error' do
-          expect { subject }.to raise_error(ArgumentError)
-        end
+      it 'raises an error' do
+        expect { subject }.to raise_error(ArgumentError)
       end
     end
 
-    describe 'creation of resources' do
-      let(:version) { 1 }
+    context 'with no params or block' do
+      let(:block) { proc do
+        resource :products
+      end }
 
-      context 'with no params or block' do
-        let(:block) { proc do
-          resource :products
-        end }
-
-        it 'creates the resource' do
-          expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
-            expect(resource).to eq(:products)
-            expect(params).to be_nil
-            expect(block).to be_nil
-          end
-          subject
+      it 'creates the resource' do
+        expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
+          expect(resource).to eq(:products)
+          expect(params).to be_nil
+          expect(block).to be_nil
         end
+        subject
       end
+    end
 
-      context 'with params' do
-        let(:block) { proc do
+    context 'with params' do
+      let(:block) { proc do
+        resource :sales, actions: [:index, :create]
+      end }
+
+      it 'creates the resource' do
+        expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
+          expect(resource).to eq(:sales)
+          expect(params).to eq(actions: [:index, :create])
+          expect(block).to be_nil
+        end
+        subject
+      end
+    end
+
+    context 'with params and block' do
+      let(:block) { proc do
+        resource :salespeople, actions: [:index] do
+          action :create
+        end
+      end }
+
+      it 'creates the resource' do
+        expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
+          expect(resource).to eq(:salespeople)
+          expect(params).to eq(actions: [:index])
+          expect(block).to_not be_nil
+        end
+        subject
+      end
+    end
+
+    context 'with inherited version' do
+      before do
+        Cathode::Version.new 1 do
           resource :sales, actions: [:index, :create]
-        end }
-
-        it 'creates the resource' do
-          expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
-            expect(resource).to eq(:sales)
-            expect(params).to eq(actions: [:index, :create])
-            expect(block).to be_nil
-          end
-          subject
         end
       end
 
-      context 'with params and block' do
+      let(:version) { 1.5 }
+
+      context 'with an additional resource' do
         let(:block) { proc do
-          resource :salespeople, actions: [:index] do
-            action :create
-          end
+          resource :products, actions: [:all]
         end }
 
-        it 'creates the resource' do
-          expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
-            expect(resource).to eq(:salespeople)
-            expect(params).to eq(actions: [:index])
-            expect(block).to_not be_nil
-          end
-          subject
+        it 'inherits the resources from the previous version' do
+          expect(subject.resources.keys).to match_array([:products, :sales])
+        end
+      end
+
+      context 'with a removed resource' do
+        let(:block) { proc do
+          resource :products, actions: [:all]
+          remove_resource :sales
+        end }
+
+        it 'does not use the resource' do
+          expect(subject.resources.keys).to match_array([:products])
         end
       end
     end
