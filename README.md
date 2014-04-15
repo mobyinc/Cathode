@@ -18,32 +18,52 @@ applications.
 * Deprecation
 * Auto-documentation
 
+## Roadmap
+* Goodies on the index action
+* More authentication options – perhaps integrate w/ CanCan or similar?
+* Deprecation messages
+* Generation of documentation
+* Generation of changelog
+
 ## Getting Started
-Mount the Cathode engine in your `config/routes.rb` file:
+Install the gem:
+
+```ruby
+gem install cathode
+```
+
+Mount the engine in your `config/routes.rb` file:
 ```ruby
 mount Cathode::Engine => '/api' # use a namespace of your choice
 ```
 
-*Note: Your API can be defined using the `resource` method in your `api/api.rb` file,
-using separate files and the `Cathode::API` class, or a combination of both. For
-brevity, this document uses `resource` with the assumption that everything is in
-`api.rb`. See the section below, “Files & Naming Conventions,” for details on
-using the other method.*
+## Defining Your API
+Cathode’s DSL provides an easy way to define your API’s versions and the
+resources inside of them. 
 
-In the simplest case, you can use only default actions:
 ```ruby
+# version 1.0.0 is implied if no version block is given
 resource :products, actions: [:index, :show, :search]
+
+version '1.0.1' do
+  resource :sales, actions: [:all]
+end
 ```
 
 Contrary to Rails’s `routes.rb` file–in which the default actions are included
 unless explicitly excluded–only actions that you specify are defined. Out of
 the box, the actions available are: `:index, :show, :create, :update, :delete, :search`.
 
-In this case, the following routes are created: `get api/products/`, `get
+In version 1, the following routes are created: `get api/products/`, `get
 api/products/{id}`, and `get api/products/search`. By default, all products will
 be returned in the `index` call, and no permissions will be enforced on the
 `show` call. By default, the `search` call will take a `query` parameter and
 search for it using the `Product.title` field.
+
+In version 1.0.1, routes are created for the `sales` endpoint: `get api/sales/`,
+`get api/sales/{id}`, etc. Those endpoints are not accessible in version 1.
+However, because versions cascade, the routes on the `products` endpoint are all
+accessible in version 1.0.1.
 
 ### Strong parameters for `create` and `update` actions
 Because ActiveModel prevents you from writing non-whitelisted attributes, you’ll
