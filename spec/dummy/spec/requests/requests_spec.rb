@@ -126,15 +126,21 @@ describe 'API' do
         end
         version 1.1 do
           remove_resource :sales
+          resource :products, actions: [:index]
         end
       end
     end
 
+    let!(:product) { create :product }
+
     it 'inherits from previous versions' do
       make_request :get, 'api/products', nil, '1.0'
+      make_request :get, 'api/products/1', nil, '1.0'
       expect { make_request :get, 'api/sales', nil, '1.0' }.to raise_error
       make_request :get, 'api/sales', nil, '1.0.1'
       expect { make_request :get, 'api/sales', nil, '1.1.0' }.to raise_error
+      expect { make_request :get, 'api/products/1', nil, '1.1.0' }.to raise_error
+      make_request :get, 'api/products', nil, '1.1.0'
     end
   end
 end
