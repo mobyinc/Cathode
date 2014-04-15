@@ -45,33 +45,39 @@ be returned in the `index` call, and no permissions will be enforced on the
 `show` call. By default, the `search` call will take a `query` parameter and
 search for it using the `Product.title` field.
 
-### `create` and `update` actions
+### Strong parameters for `create` and `update` actions
 Because ActiveModel prevents you from writing non-whitelisted attributes, you’ll
-have to declare an attributes whitelist when you define a `create` or `update`
-action:
+need to specify a strong parameters block when you define a `create` or `update`
+action. The request `params` are passed to the block, and you can use the
+[Strong Parameters](https://github.com/rails/strong_parameters) API just as you
+would in a controller.
 
 ```ruby
 # use the same attribute whitelist for `create` and `update`
 resource :products do
-  attributes :title, :description, :cost
+  attributes do |params|
+    params.require(:product).permit(:title, :description, :cost)
+  end
 end
 
 # use different attribute whitelists for `create` and `update`
 resource :products do
   action :create do
-    attributes :title, :description, :cost
+    attributes do |params|
+      params.require(:product).permit(:title, :description, :cost)
+    end
   end
 
   action :update do
-    attributes :description, :cost
+    attributes do |params|
+      params.require(:product).permit(:description, :cost)
+    end
   end
 end
 ```
 
 Requests that attempt to write non-whitelisted attributes will respond with `400
 Bad Request`.
-
-**TODO: Integrate with strong params**
 
 ## Serialization
 Cathode doesn’t do any explicit serialization of resources when responding to

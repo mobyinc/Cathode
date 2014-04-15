@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'action_pack'
 
 describe Cathode::Action do
   describe '.create' do
@@ -7,7 +8,7 @@ describe Cathode::Action do
     context 'with :index' do
       let(:action) { :index }
 
-      it 'creates a IndexAction' do
+      it 'creates an IndexAction' do
         expect(subject.class).to eq(Cathode::IndexAction)
       end
     end
@@ -48,11 +49,12 @@ describe Cathode::Action do
   describe '#perform' do
     let!(:products) { create_list(:product, 5) }
 
-    subject { Cathode::Action.create(action, :products).perform(params) }
+    subject { Cathode::Action.create(action, :products, &block).perform(params) }
 
     context ':index' do
       let(:action) { :index }
       let(:params) { {} }
+      let(:block) { nil }
 
       it 'sets status as ok' do
         expect(subject[:status]).to eq(:ok)
@@ -66,8 +68,6 @@ describe Cathode::Action do
     context ':show' do
       let(:action) { :show }
       let(:params) { { :id => 3 } }
-
-      subject { Cathode::Action.create(action, :products, &block).perform(params) }
 
       context 'with access filter' do
         context 'when accessible' do
@@ -98,28 +98,60 @@ describe Cathode::Action do
 
     context ':create' do
       let(:action) { :create }
-      let(:params) { { :title => 'cool product' } }
+      let(:params) { ActionController::Parameters.new({ product: { title: 'cool product' } }) }
 
-      it 'sets status as ok' do
-        expect(subject[:status]).to eq(:ok)
+      context 'when attributes specified' do
+        let(:block) { proc do
+          attributes do |params|
+            params.require(:product).permit(:title)
+          end
+        end }
+
+        it 'sets status as ok' do
+          expect(subject[:status]).to eq(:ok)
+        end
+
+        it 'sets body as the new record' do
+          expect(subject[:body].title).to eq('cool product')
+        end
       end
 
-      it 'sets body as the new record' do
-        expect(subject[:body].title).to eq('cool product')
+      context 'when attributes not specified' do
+        let(:block) { nil }
+
+        it 'raises an error' do
+          expect { subject }.to raise_error(Cathode::UnknownAttributesError, "An attributes block was not specified for `create' action on resource `products'")
+        end
       end
     end
 
     context ':update' do
       let(:action) { :update }
-      let(:params) { { :id => product.id, :title => 'cooler product' } }
+      let(:params) { ActionController::Parameters.new({ id: product.id, product: { title: 'cooler product' } }) }
       let(:product) { create(:product, title: 'cool product') }
 
-      it 'sets status as ok' do
-        expect(subject[:status]).to eq(:ok)
+      context 'when attributes specified' do
+        let(:block) { proc do
+          attributes do |params|
+            params.require(:product).permit(:title)
+          end
+        end }
+
+        it 'sets status as ok' do
+          expect(subject[:status]).to eq(:ok)
+        end
+
+        it 'sets body as the updated record' do
+          expect(subject[:body].title).to eq('cooler product')
+        end
       end
 
-      it 'sets body as the updated record' do
-        expect(subject[:body].title).to eq('cooler product')
+      context 'when attributes not specified' do
+        let(:block) { nil }
+
+        it 'raises an error' do
+          expect { subject }.to raise_error(Cathode::UnknownAttributesError, "An attributes block was not specified for `create' action on resource `products'")
+        end
       end
     end
 
@@ -127,6 +159,7 @@ describe Cathode::Action do
       let(:action) { :destroy }
       let(:params) { { :id => product.id } }
       let!(:product) { create(:product) }
+      let(:block) { nil }
 
       it 'sets status as ok' do
         expect(subject[:status]).to eq(:ok)

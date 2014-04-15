@@ -27,6 +27,15 @@ module Cathode
       @actions[action] = Action.create(action, @name, &block)
     end
 
+    def attributes(&block)
+      unless @actions[:create] || @actions[:update]
+        raise UnknownActionError, 'An attributes block was specified without a :create or :update action'
+      end
+
+      @actions[:create].strong_params = block if @actions[:create].present?
+      @actions[:update].strong_params = block if @actions[:update].present?
+    end
+
     def require_resource_constant!(resource_name)
       if resource_name.to_s.singularize.camelize.safe_constantize.nil?
         raise UnknownResourceError

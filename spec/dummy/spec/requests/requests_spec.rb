@@ -50,7 +50,11 @@ describe 'API' do
     before(:all) do
       use_api do
         version 1.5 do
-          resource :products, actions: [:all]
+          resource :products, actions: [:all] do
+            attributes do |params|
+              params.require(:product).permit(:title, :cost)
+            end
+          end
           resource :sales, actions: [:index, :show]
         end
       end
@@ -81,14 +85,16 @@ describe 'API' do
         request_spec :post, 'api/products', product: { title: 'hello', cost: 1900 } do
           it 'responds with the new record' do
             subject
-            expect(response.body).to eq(Product.new(title: 'hello', cost: 1900).to_json)
+            parsed_response = JSON.parse(response.body)
+            expect(parsed_response['title']).to eq('hello')
+            expect(parsed_response['cost']).to eq(1900)
           end
         end
       end
 
       describe 'update' do
         request_spec :put, 'api/products/1', product: { title: 'goodbye' } do
-          it 'responds with the new record' do
+          it 'responds with the updated record' do
             subject
             expect(JSON.parse(response.body)['title']).to eq('goodbye')
           end

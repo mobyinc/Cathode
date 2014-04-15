@@ -1,9 +1,9 @@
 module Cathode
   class Action
+    attr_accessor :strong_params
     attr_reader :action_access_filter,
                 :name,
                 :resource
-
 
     def self.create(action, resource, &block)
       klass = case action
@@ -46,6 +46,10 @@ module Cathode
     def access_filter(&filter)
       @action_access_filter = filter
     end
+
+    def attributes(&strong_params_block)
+      @strong_params = strong_params_block
+    end
   end
 
   class IndexAction < Action
@@ -62,14 +66,22 @@ module Cathode
 
   class CreateAction < Action
     def perform_action(params)
-      model.create params
+      if strong_params.nil?
+        raise UnknownAttributesError, "An attributes block was not specified for `create' action on resource `#{resource}'"
+      end
+
+      model.create(strong_params.call(params))
     end
   end
 
   class UpdateAction < Action
     def perform_action(params)
+      if strong_params.nil?
+        raise UnknownAttributesError, "An attributes block was not specified for `create' action on resource `#{resource}'"
+      end
+
       record = model.find(params[:id])
-      record.update params
+      record.update(strong_params.call(params))
       record.reload
     end
   end
