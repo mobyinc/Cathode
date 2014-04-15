@@ -55,7 +55,7 @@ describe Cathode::Action do
       create(:product, title: 'charger')
     ] }
 
-    subject { Cathode::Action.create(action, :products, &block).perform(params) }
+    subject { Cathode::Action.create(action, :products, &block).perform(context_stub(params)) }
 
     context ':index' do
       let(:action) { :index }
@@ -193,6 +193,21 @@ describe Cathode::Action do
 
       it 'removes the record' do
         expect { subject }.to change { Product.count }.by(-1)
+      end
+    end
+
+    context 'with an override' do
+      let(:action) { :show }
+      let(:params) { { id: products.first.id } }
+      let(:products) { create_list(:product, 2) }
+      let(:block) { proc do
+        override do |params|
+          render json: Product.last
+        end
+      end }
+
+      it 'returns the custom logic proc' do
+        expect(subject[:custom_logic].class).to eq(Proc)
       end
     end
   end

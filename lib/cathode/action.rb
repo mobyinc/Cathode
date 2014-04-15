@@ -28,7 +28,9 @@ module Cathode
       self.instance_eval &block if block_given?
     end
 
-    def perform(params)
+    def perform(context)
+      params = context.params
+
       if action_access_filter && !action_access_filter.call
         return { status: :unauthorized }
       end
@@ -37,9 +39,13 @@ module Cathode
         return { status: :bad_request }
       end
 
-      body = perform_action params
+      if @custom_logic
+        { custom_logic: @custom_logic }
+      else
+        body = perform_action params
 
-      return { body: body, status: :ok }
+        { body: body, status: :ok }
+      end
     end
 
   private
@@ -62,6 +68,10 @@ module Cathode
 
     def allowed?(subaction)
       @allowed_subactions.include? subaction
+    end
+
+    def override(&custom_logic)
+      @custom_logic = custom_logic
     end
   end
 

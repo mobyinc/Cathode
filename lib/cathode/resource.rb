@@ -36,6 +36,12 @@ module Cathode
       @actions[:update].strong_params = block if @actions[:update].present?
     end
 
+    def override_action(action, &block)
+      action action do
+        override &block
+      end
+    end
+
     def require_resource_constant!(resource_name)
       if resource_name.to_s.singularize.camelize.safe_constantize.nil?
         raise UnknownResourceError

@@ -143,4 +143,41 @@ describe 'API' do
       make_request :get, 'api/products', nil, '1.1.0'
     end
   end
+
+  context 'with action overriding' do
+    before do
+      use_api do
+        resource :products do
+          action :show do
+            override do
+              render json: Product.last
+            end
+          end
+          override_action :index do
+            render json: Product.all.reverse
+          end
+        end
+      end
+    end
+
+    let!(:products) { create_list(:product, 3) }
+
+    describe 'with override defined inside action' do
+      subject { make_request(:get, 'api/products/1', nil, '1.0') }
+
+      it 'uses the custom logic instead of the default behavior' do
+        subject
+        expect(response.body).to eq(Product.last.to_json)
+      end
+    end
+
+    describe 'with override defined as the action' do
+      subject { make_request(:get, 'api/products', nil, '1.0') }
+
+      it 'uses the custom logic instead of the default behavior' do
+        subject
+        expect(JSON.parse(response.body).map { |p| p['id'] }).to eq(Product.all.reverse.map(&:id))
+      end
+    end
+  end
 end

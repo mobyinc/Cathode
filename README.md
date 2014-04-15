@@ -171,35 +171,25 @@ end
 All actions have access to the request `params` hash.
 
 ## Custom action behavior
-Of course, you won’t want to use Cathode’s default actions in every scenario.
+Of course, you won’t want to use Cathode’s default actions in every scenario. To
+use your own logic, either use the `override_action` method at the resource
+level, or the `override` method inside an action block. For example, to show a
+random sale instead on the `show` action, these are functionally equivalent:
 
 ```ruby
-version 2.1 do
-  resource :sales, actions: [:all] do
-    action :show do
-      change 'Checks user permission'
-      access_filter do |current_user|
-        resource.user == current_user
-      end
-    end
+resource :sales, actions: [:all] do
+  override_action :show do
+    render json: Sale.sample
   end
 end
 ```
 
-In this case, we need to prevent users from seeing sales that aren’t theirs.
-Happily, Cathode provides some neat shorthands for common scenarios like this.
-`access_filter` can be applied to any action, and should be a method that
-returns `true` if the user can access the resource and `false` if not. If the
-user cannot access the resource, a `401 Unauthorized` header will be sent.
-
-In those cases where you want to do all of the logic yourself, and just want the
-endpoints that Cathode generates, you can override an action entirely:
-
 ```ruby
 resource :sales, actions: [:all] do
-  # show a random sale instead
-  override_action :show do
-    render json: Sale.sample
+  action :show do
+    override do
+      render json: Sale.sample
+    end
   end
 end
 ```

@@ -8,4 +8,10 @@ module SpecHelpers
 
     Rails.application.reload_routes!
   end
+
+  def context_stub(params)
+    context = Cathode::BaseController.new
+    context.params = params
+    context
+  end
 end
