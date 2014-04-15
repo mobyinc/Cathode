@@ -47,7 +47,13 @@ describe Cathode::Action do
   end
 
   describe '#perform' do
-    let!(:products) { create_list(:product, 5) }
+    let!(:products) { [
+      create(:product, title: 'battery'),
+      create(:product, title: 'adapter'),
+      create(:product, title: 'monitor'),
+      create(:product, title: 'battery pack'),
+      create(:product, title: 'charger')
+    ] }
 
     subject { Cathode::Action.create(action, :products, &block).perform(params) }
 
@@ -62,6 +68,26 @@ describe Cathode::Action do
 
       it 'sets body as all resource records' do
         expect(subject[:body]).to eq(Product.all)
+      end
+
+      context 'with paging' do
+        let(:params) { { page: 2, per_page: 2 } }
+
+        context 'when paging is not allowed' do
+          it 'responds with bad request' do
+            expect(subject[:status]).to eq(:bad_request)
+          end
+        end
+
+        context 'when paging is allowed' do
+          let(:block) { proc do
+            allows :paging
+          end }
+
+          it 'responds with the paged results' do
+            expect(subject[:body]).to eq(products[2..3])
+          end
+        end
       end
     end
 
