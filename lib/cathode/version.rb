@@ -26,6 +26,19 @@ module Cathode
       resources[resource].actions[context.params[:action].to_sym].perform context
     end
 
+    def resource?(resource)
+      @resources.include? resource.to_sym
+    end
+
+    def action?(resource, action)
+      resource = resource.to_sym
+      action = action.to_sym
+
+      return false unless resource?(resource)
+
+      @resources[resource].actions.include? action
+    end
+
     class << self
       attr_reader :all
 
@@ -39,14 +52,12 @@ module Cathode
         version_parts.join '.'
       end
 
-      def perform_request_with_version(version_number, resource, params)
-        version = Version.all[standardize(version_number)]
+      def find(version_number)
+        Version.all[standardize(version_number)]
+      end
 
-        if version.present?
-          version.perform_request resource, params
-        else
-          { status: 400, body: "Unknown API version: #{version_number}" }
-        end
+      def exists?(version_number)
+        find(version_number).present?
       end
     end
 

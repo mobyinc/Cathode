@@ -9,9 +9,7 @@ module SpecHelpers
     Rails.application.reload_routes!
   end
 
-  def context_stub(params)
-    context = Cathode::BaseController.new
-    context.params = params
-    context
+  def context_stub(options)
+    Struct.new(:request, :params).new(Struct.new(:headers).new(options[:headers]), options[:params])
   end
 end

@@ -57,7 +57,7 @@ describe Cathode::Action do
       ]
     end
 
-    subject { Cathode::Action.create(action, :products, &block).perform(context_stub(params)) }
+    subject { Cathode::Action.create(action, :products, &block).perform(context_stub(params: params)) }
 
     context ':index' do
       let(:action) { :index }

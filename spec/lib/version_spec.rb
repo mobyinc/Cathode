@@ -217,4 +217,67 @@ describe Cathode::Version do
       end
     end
   end
+
+  describe '#resource?' do
+    subject { Cathode::Version.find('1.0.0').resource?(resource) }
+    before do
+      use_api do
+        resource :products
+      end
+    end
+
+    context 'when the resource is present' do
+      let(:resource) { 'products' }
+
+      it 'is true' do
+        expect(subject).to be_true
+      end
+    end
+
+    context 'when the resource is not present' do
+      let(:resource) { 'sales' }
+
+      it 'is false' do
+        expect(subject).to be_false
+      end
+    end
+  end
+
+  describe '#action?' do
+    subject { Cathode::Version.find('1.0.0').action?(resource, action) }
+    before do
+      use_api do
+        resource :products, actions: [:index]
+      end
+    end
+
+    context 'when the resource is not present' do
+      let(:resource) { 'sales' }
+      let(:action) { 'index' }
+
+      it 'is false' do
+        expect(subject).to be_false
+      end
+    end
+
+    context 'when the resource is present' do
+      let(:resource) { 'products' }
+
+      context 'when the action is present' do
+        let(:action) { 'index' }
+
+        it 'is true' do
+          expect(subject).to be_true
+        end
+      end
+
+      context 'when the action is not present' do
+        let(:action) { 'show' }
+
+        it 'is false' do
+          expect(subject).to be_false
+        end
+      end
+    end
+  end
 end

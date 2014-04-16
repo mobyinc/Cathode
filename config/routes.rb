@@ -4,4 +4,5 @@ Cathode::Engine.routes.draw do
       resources name, only: resource.actions.keys
     end
   end
+  match '*path' => 'base#index', via: [:get, :post]
 end

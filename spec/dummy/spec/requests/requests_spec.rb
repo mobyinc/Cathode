@@ -10,7 +10,7 @@ def request_spec(method, path, params = nil, &block)
 
     it 'responds with bad request' do
       expect(subject).to eq(400)
-      expect(response.body).to eq('Accept-Version header was not passed')
+      expect(response.body).to eq('A version number must be passed in the Accept-Version header')
     end
   end
 
@@ -115,6 +115,15 @@ describe 'API' do
         pending
       end
     end
+
+    describe 'to a nonexistent endpoint' do
+      subject { make_request :get, 'api/boxes', nil, '1.5.0' }
+
+      it 'responds with 404' do
+        subject
+        expect(response.status).to eq(404)
+      end
+    end
   end
 
   context 'with cascading versions' do
@@ -135,12 +144,25 @@ describe 'API' do
 
     it 'inherits from previous versions' do
       make_request :get, 'api/products', nil, '1.0'
+      expect(response.status).to eq(200)
+
       make_request :get, 'api/products/1', nil, '1.0'
-      expect { make_request :get, 'api/sales', nil, '1.0' }.to raise_error
+      expect(response.status).to eq(200)
+
+      make_request :get, 'api/sales', nil, '1.0'
+      expect(response.status).to eq(404)
+
       make_request :get, 'api/sales', nil, '1.0.1'
-      expect { make_request :get, 'api/sales', nil, '1.1.0' }.to raise_error
-      expect { make_request :get, 'api/products/1', nil, '1.1.0' }.to raise_error
+      expect(response.status).to eq(200)
+
+      make_request :get, 'api/sales', nil, '1.1.0'
+      expect(response.status).to eq(404)
+
+      make_request :get, 'api/products/1', nil, '1.1.0'
+      expect(response.status).to eq(404)
+
       make_request :get, 'api/products', nil, '1.1.0'
+      expect(response.status).to eq(200)
     end
   end
 
