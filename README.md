@@ -39,14 +39,16 @@ mount Cathode::Engine => '/api' # use a namespace of your choice
 
 ## Defining Your API
 Cathode’s DSL provides an easy way to define your API’s versions and the
-resources inside of them. 
+resources inside of them.
 
 ```ruby
-# version 1.0.0 is implied if no version block is given
-resource :products, actions: [:index, :show, :search]
+Cathode::Base.define do
+  # version 1.0.0 is implied if no version block is given
+  resource :products, actions: [:index, :show, :search]
 
-version '1.0.1' do
-  resource :sales, actions: [:all]
+  version '1.0.1' do
+    resource :sales, actions: [:all]
+  end
 end
 ```
 
@@ -167,9 +169,6 @@ resource :products do
 end
 ```
 
-## Params
-All actions have access to the request `params` hash.
-
 ## Custom action behavior
 Of course, you won’t want to use Cathode’s default actions in every scenario. To
 use your own logic, either use the `override_action` method at the resource
@@ -194,6 +193,11 @@ resource :sales, actions: [:all] do
 end
 ```
 
+The `override` and `override_action` blocks have access to anything the
+controller would normally have access to, so you can use `request`, `response`,
+and `params` normally. Note that overriding means the request won’t go through
+Cathode’s regular pipeline, so you must render the response manually.
+
 ## Deprecation
 With Cathode’s slick versioning, you’ll be implicitly deprecating junk in previous
 versions each time you introduce a new breaking change. When that happens, users
@@ -212,26 +216,87 @@ API"]
 ```
 
 ## Files & Naming Conventions
-While this example has been putting all actions in a single file, in reality
-you’ll probably want to specify individual files for each resource. You can use
-the same versioning scheme in those files; as long as your resource APIs inherit
-from `Cathode::API`, Cathode will match up everything accordingly:
+Cathode is agnostic to the way you organize your API files. Since you can either
+define an API all at once using `Cathode::Base.define`, or each version
+separately using `Cathode::Base.version`, you have many organization options.
+Following are some examples.
+
+### Single file for API
+If your API is tiny and you only have a handful of versions, you could place
+them all in a single file:
 
 ```ruby
-# app/api/products_api.rb
+# api/api.rb
 
-class ProductsAPI < Cathode::API
-  actions: [:index, :show, :search] # version 1.0.0 is implied
+Cathode::Base.define do
+  version 1 do
+    resource :products, actions: [:all]
+  end
 
   version 2 do
-    remove_action :search
+    resource :products do
+      remove_action :delete
+    end
+
+    resource :sales, actions: [:index]
   end
 end
 ```
 
-Since nothing about products changed in version 1.2 (which only added sales,
-above), it will use the same actions as it did in version 1. In version 2,
-everything is carried over except for the `search` endpoint.
+### Files for each version
+To break things apart a bit more, you can use a single file for each version.
+
+```
+api/
+  v1.rb
+  v2.rb
+```
+```ruby
+# api/v1.rb
+Cathode::Base.version 1 do
+  resource :products, actions: [:all]
+end
+
+# api/v2.rb
+Cathode::Base.version 2 do
+  resource :products do
+    remove_action :delete
+  end
+
+  resource :sales, actions: [:index]
+end
+```
+
+### Folders for each version, files for each resource
+Another method would be to have a folder for each version of your API, and files
+for each resource:
+
+```
+api/
+  v1/
+    products.rb
+  v2/
+    products.rb
+    sales.rb
+```
+```ruby
+# api/v1/products.rb
+Cathode::Base.version 1 do
+  resource :products, actions: [:all]
+end
+
+# api/v2/products.rb
+Cathode::Base.version 2 do
+  resource :products do
+    remove_action :delete
+  end
+end
+
+# api/v2/sales.rb
+Cathode::Base.version 2 do
+  resource :sales, actions: [:index]
+end
+```
 
 ## Documentation & Changelogs
 By sticking to Cathode’s versioning scheme, you tell it a lot about your API. So

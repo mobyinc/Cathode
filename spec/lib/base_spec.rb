@@ -15,9 +15,11 @@ describe Cathode::Base do
     end
   end
 
-  describe '#resource' do
+  describe '#define' do
     context 'with resource name' do
-      subject { Cathode::Base.resource(:products) }
+      subject { Cathode::Base.define do
+        resource :products
+      end }
 
       it 'initializes version 1.0.0' do
         subject

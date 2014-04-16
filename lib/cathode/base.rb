@@ -12,10 +12,8 @@ module Cathode
         versions.clear
       end
 
-      def resource(resource_name, params = nil, &block)
-        version 1 do
-          resource resource_name, params, &block
-        end
+      def define(&block)
+        instance_eval &block
       end
 
       def versions
@@ -24,6 +22,14 @@ module Cathode
 
       def version(version_number, &block)
         Version.new(version_number, &block)
+      end
+
+    private
+
+      def resource(resource_name, params = nil, &block)
+        version 1 do
+          resource resource_name, params, &block
+        end
       end
     end
   end
