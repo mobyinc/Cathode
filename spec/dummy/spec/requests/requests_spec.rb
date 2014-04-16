@@ -47,7 +47,7 @@ describe 'API' do
   end
 
   context 'with explicit version' do
-    before(:all) do
+    before do
       use_api do
         version 1.5 do
           resource :products, actions: [:all] do

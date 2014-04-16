@@ -7,9 +7,11 @@ require 'cathode/railtie'
 
 module Cathode
   class Base
-    @@versions = {}
-
     class << self
+      def reset!
+        versions.clear
+      end
+
       def resource(resource_name, params = nil, &block)
         version 1 do
           resource resource_name, params, &block
@@ -17,12 +19,11 @@ module Cathode
       end
 
       def versions
-        @@versions
+        Version.all
       end
 
       def version(version_number, &block)
-        version = Version.new(version_number, &block)
-        versions[version.version.to_s] = version
+        Version.new(version_number, &block)
       end
     end
   end
