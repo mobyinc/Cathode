@@ -1,0 +1,19 @@
+Documentation:
+  Enabled: false
+
+LineLength:
+  Max: 150
+
+MethodLength:
+  Max: 25
+
+AllCops:
+  Exclude:
+    - spec/dummy/db/**
+    - spec/dummy/config/**
+
+TrivialAccessors:
+  AllowDSLWriters: true
+
+AccessModifierIndentation:
+  EnforcedStyle: outdent

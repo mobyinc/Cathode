@@ -54,9 +54,11 @@ describe Cathode::Version do
     end
 
     context 'with no params or block' do
-      let(:block) { proc do
-        resource :products
-      end }
+      let(:block) do
+        proc do
+          resource :products
+        end
+      end
 
       it 'creates the resource' do
         expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
@@ -69,9 +71,11 @@ describe Cathode::Version do
     end
 
     context 'with params' do
-      let(:block) { proc do
-        resource :sales, actions: [:index, :create]
-      end }
+      let(:block) do
+        proc do
+          resource :sales, actions: [:index, :create]
+        end
+      end
 
       it 'creates the resource' do
         expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
@@ -84,11 +88,13 @@ describe Cathode::Version do
     end
 
     context 'with params and block' do
-      let(:block) { proc do
-        resource :salespeople, actions: [:index] do
-          action :create
+      let(:block) do
+        proc do
+          resource :salespeople, actions: [:index] do
+            action :create
+          end
         end
-      end }
+      end
 
       it 'creates the resource' do
         expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
@@ -110,9 +116,11 @@ describe Cathode::Version do
       let(:version) { 1.5 }
 
       context 'with an additional resource' do
-        let(:block) { proc do
-          resource :products, actions: [:all]
-        end }
+        let(:block) do
+          proc do
+            resource :products, actions: [:all]
+          end
+        end
 
         it 'inherits the resources from the previous version' do
           expect(subject.resources.keys).to match_array([:products, :sales])
@@ -121,9 +129,11 @@ describe Cathode::Version do
 
       context 'with a removed resource' do
         context 'with an unkown resource' do
-          let(:block) { proc do
-            remove_resource :factories
-          end }
+          let(:block) do
+            proc do
+              remove_resource :factories
+            end
+          end
 
           it 'raises an error' do
             expect { subject }.to raise_error(Cathode::UnknownResourceError)
@@ -131,10 +141,12 @@ describe Cathode::Version do
         end
 
         context 'with a single resource' do
-          let(:block) { proc do
-            resource :products, actions: [:all]
-            remove_resource :sales
-          end }
+          let(:block) do
+            proc do
+              resource :products, actions: [:all]
+              remove_resource :sales
+            end
+          end
 
           it 'does not use the resource' do
             expect(subject.resources.keys).to match_array([:products])
@@ -148,9 +160,11 @@ describe Cathode::Version do
             end
           end
 
-          let(:block) { proc do
-            remove_resources [:sales, :products]
-          end }
+          let(:block) do
+            proc do
+              remove_resources [:sales, :products]
+            end
+          end
 
           it 'does not use the resource' do
             expect(subject.resources.keys).to be_empty
@@ -160,9 +174,11 @@ describe Cathode::Version do
 
       context 'with a removed action' do
         context 'with an unkown action' do
-          let(:block) { proc do
-            remove_action :sales, :show
-          end }
+          let(:block) do
+            proc do
+              remove_action :sales, :show
+            end
+          end
 
           it 'raises an error' do
             expect { subject }.to raise_error(Cathode::UnknownActionError)
@@ -170,10 +186,12 @@ describe Cathode::Version do
         end
 
         context 'with a single action' do
-          let(:block) { proc do
-            resource :products, actions: [:all]
-            remove_actions :sales, :index
-          end }
+          let(:block) do
+            proc do
+              resource :products, actions: [:all]
+              remove_actions :sales, :index
+            end
+          end
 
           it 'does not use the action' do
             subject
@@ -183,10 +201,12 @@ describe Cathode::Version do
         end
 
         context 'with an array of actions' do
-          let(:block) { proc do
-            resource :products, actions: [:all]
-            remove_actions :sales, [:index, :create]
-          end }
+          let(:block) do
+            proc do
+              resource :products, actions: [:all]
+              remove_actions :sales, [:index, :create]
+            end
+          end
 
           it 'does not use the actions' do
             subject

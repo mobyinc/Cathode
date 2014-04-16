@@ -25,19 +25,15 @@ module Cathode
       @name, @resource = action, resource
       @allowed_subactions = []
 
-      self.instance_eval &block if block_given?
+      instance_eval(&block) if block_given?
     end
 
     def perform(context)
       params = context.params
 
-      if action_access_filter && !action_access_filter.call
-        return { status: :unauthorized }
-      end
+      return { status: :unauthorized } if action_access_filter && !action_access_filter.call
 
-      if params[:page] && !allowed?(:paging)
-        return { status: :bad_request }
-      end
+      return { status: :bad_request } if params[:page] && !allowed?(:paging)
 
       if @custom_logic
         { custom_logic: @custom_logic }
@@ -101,7 +97,7 @@ module Cathode
   class CreateAction < Action
     def perform_action(params)
       if strong_params.nil?
-        raise UnknownAttributesError, "An attributes block was not specified for `create' action on resource `#{resource}'"
+        fail UnknownAttributesError, "An attributes block was not specified for `create' action on resource `#{resource}'"
       end
 
       model.create(strong_params.call(params))
@@ -111,7 +107,7 @@ module Cathode
   class UpdateAction < Action
     def perform_action(params)
       if strong_params.nil?
-        raise UnknownAttributesError, "An attributes block was not specified for `create' action on resource `#{resource}'"
+        fail UnknownAttributesError, "An attributes block was not specified for `create' action on resource `#{resource}'"
       end
 
       record = model.find(params[:id])

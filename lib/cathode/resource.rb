@@ -20,8 +20,7 @@ module Cathode
       actions_to_add.each do |action_name|
         action action_name
       end
-      self.instance_eval &block if block_given?
-      actions = @actions
+      instance_eval(&block) if block_given?
     end
 
   private
@@ -32,7 +31,7 @@ module Cathode
 
     def attributes(&block)
       unless @actions[:create] || @actions[:update]
-        raise UnknownActionError, 'An attributes block was specified without a :create or :update action'
+        fail UnknownActionError, 'An attributes block was specified without a :create or :update action'
       end
 
       @actions[:create].strong_params = block if @actions[:create].present?
@@ -41,13 +40,13 @@ module Cathode
 
     def override_action(action, &block)
       action action do
-        override &block
+        override(&block)
       end
     end
 
     def require_resource_constant!(resource_name)
       if resource_name.to_s.singularize.camelize.safe_constantize.nil?
-        raise UnknownResourceError
+        fail UnknownResourceError
       end
     end
   end

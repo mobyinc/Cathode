@@ -29,11 +29,13 @@ describe Cathode::Resource do
     end
 
     context 'with an attributes block' do
-      subject { Cathode::Resource.new(:products, actions: actions) do
-        attributes do |params|
-          params.require(:product).permit(:title)
+      subject do
+        Cathode::Resource.new(:products, actions: actions) do
+          attributes do |params|
+            params.require(:product).permit(:title)
+          end
         end
-      end }
+      end
 
       context 'when create is specified' do
         let(:actions) { [:create] }

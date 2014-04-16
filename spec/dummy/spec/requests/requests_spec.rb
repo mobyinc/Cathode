@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 def make_request(method, path, params = nil, version = '1.0.0')
-  send(method, path, params, { 'Accept-Version' => version })
+  send(method, path, params,  'Accept-Version' => version)
 end
 
 def request_spec(method, path, params = nil, &block)
@@ -26,7 +26,7 @@ def request_spec(method, path, params = nil, &block)
   context 'with valid version header' do
     subject { make_request method, path, params, '1.5.0' }
 
-    instance_eval &block
+    instance_eval(&block)
   end
 end
 

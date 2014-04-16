@@ -47,13 +47,15 @@ describe Cathode::Action do
   end
 
   describe '#perform' do
-    let!(:products) { [
-      create(:product, title: 'battery'),
-      create(:product, title: 'adapter'),
-      create(:product, title: 'monitor'),
-      create(:product, title: 'battery pack'),
-      create(:product, title: 'charger')
-    ] }
+    let!(:products) do
+      [
+        create(:product, title: 'battery'),
+        create(:product, title: 'adapter'),
+        create(:product, title: 'monitor'),
+        create(:product, title: 'battery pack'),
+        create(:product, title: 'charger')
+      ]
+    end
 
     subject { Cathode::Action.create(action, :products, &block).perform(context_stub(params)) }
 
@@ -80,9 +82,7 @@ describe Cathode::Action do
         end
 
         context 'when paging is allowed' do
-          let(:block) { proc do
-            allows :paging
-          end }
+          let(:block) { proc { allows :paging } }
 
           it 'responds with the paged results' do
             expect(subject[:body]).to eq(products[2..3])
@@ -93,7 +93,7 @@ describe Cathode::Action do
 
     context ':show' do
       let(:action) { :show }
-      let(:params) { { :id => 3 } }
+      let(:params) { { id: 3 } }
 
       context 'with access filter' do
         context 'when accessible' do
@@ -124,14 +124,16 @@ describe Cathode::Action do
 
     context ':create' do
       let(:action) { :create }
-      let(:params) { ActionController::Parameters.new({ product: { title: 'cool product' } }) }
+      let(:params) { ActionController::Parameters.new(product: { title: 'cool product' }) }
 
       context 'when attributes specified' do
-        let(:block) { proc do
-          attributes do |params|
-            params.require(:product).permit(:title)
+        let(:block) do
+          proc do
+            attributes do |params|
+              params.require(:product).permit(:title)
+            end
           end
-        end }
+        end
 
         it 'sets status as ok' do
           expect(subject[:status]).to eq(:ok)
@@ -146,22 +148,25 @@ describe Cathode::Action do
         let(:block) { nil }
 
         it 'raises an error' do
-          expect { subject }.to raise_error(Cathode::UnknownAttributesError, "An attributes block was not specified for `create' action on resource `products'")
+          expect { subject }.to raise_error(Cathode::UnknownAttributesError,
+                                            "An attributes block was not specified for `create' action on resource `products'")
         end
       end
     end
 
     context ':update' do
       let(:action) { :update }
-      let(:params) { ActionController::Parameters.new({ id: product.id, product: { title: 'cooler product' } }) }
+      let(:params) { ActionController::Parameters.new(id: product.id, product: { title: 'cooler product' }) }
       let(:product) { create(:product, title: 'cool product') }
 
       context 'when attributes specified' do
-        let(:block) { proc do
-          attributes do |params|
-            params.require(:product).permit(:title)
+        let(:block) do
+          proc do
+            attributes do |params|
+              params.require(:product).permit(:title)
+            end
           end
-        end }
+        end
 
         it 'sets status as ok' do
           expect(subject[:status]).to eq(:ok)
@@ -176,14 +181,15 @@ describe Cathode::Action do
         let(:block) { nil }
 
         it 'raises an error' do
-          expect { subject }.to raise_error(Cathode::UnknownAttributesError, "An attributes block was not specified for `create' action on resource `products'")
+          expect { subject }.to raise_error(Cathode::UnknownAttributesError,
+                                            "An attributes block was not specified for `create' action on resource `products'")
         end
       end
     end
 
     context ':destroy' do
       let(:action) { :destroy }
-      let(:params) { { :id => product.id } }
+      let(:params) { { id: product.id } }
       let!(:product) { create(:product) }
       let(:block) { nil }
 
@@ -200,11 +206,13 @@ describe Cathode::Action do
       let(:action) { :show }
       let(:params) { { id: products.first.id } }
       let(:products) { create_list(:product, 2) }
-      let(:block) { proc do
-        override do |params|
-          render json: Product.last
+      let(:block) do
+        proc do
+          override do |params|
+            render json: Product.last
+          end
         end
-      end }
+      end
 
       it 'returns the custom logic proc' do
         expect(subject[:custom_logic].class).to eq(Proc)

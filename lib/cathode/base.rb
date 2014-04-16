@@ -13,7 +13,7 @@ module Cathode
       end
 
       def define(&block)
-        instance_eval &block
+        instance_eval(&block)
       end
 
       def versions

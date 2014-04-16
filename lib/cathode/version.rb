@@ -6,7 +6,7 @@ module Cathode
                 :resources,
                 :version
 
-    @@all = {}
+    @all = {}
 
     def initialize(version_number, &block)
       @version = Semantic::Version.new Version.standardize(version_number)
@@ -17,7 +17,7 @@ module Cathode
         @resources = @ancestor.resources.clone
       end
 
-      self.instance_eval &block if block_given?
+      instance_eval(&block) if block_given?
 
       Version.all[@version.to_s] = self
     end
@@ -27,9 +27,7 @@ module Cathode
     end
 
     class << self
-      def all
-        @@all
-      end
+      attr_reader :all
 
       def standardize(rough_version)
         version_parts = rough_version.to_s.split '.'
@@ -63,7 +61,7 @@ module Cathode
 
       resources.each do |resource|
         if @resources[resource].nil?
-          raise UnknownResourceError, "Unknown resource `#{resource}'"
+          fail UnknownResourceError, "Unknown resource `#{resource}'"
         end
 
         @resources.delete(resource)
@@ -75,7 +73,7 @@ module Cathode
 
       actions.each do |action|
         if @resources[resource].actions[action].nil?
-          raise UnknownActionError, "Unknown action `#{action}' on resource `#{resource}'"
+          fail UnknownActionError, "Unknown action `#{action}' on resource `#{resource}'"
         end
 
         @resources[resource].actions.delete action

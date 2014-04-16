@@ -2,7 +2,7 @@
 
 FactoryGirl.define do
   factory :product do
-    title "MyString"
+    title 'MyString'
     cost 1
   end
 end
