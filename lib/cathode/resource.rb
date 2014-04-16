@@ -10,7 +10,10 @@ module Cathode
 
       @name = resource_name
 
-      Cathode.const_set "#{resource_name.to_s.camelize}Controller", Class.new(Cathode::BaseController)
+      controller_name = "#{resource_name.to_s.camelize}Controller"
+      unless Cathode.const_defined? controller_name
+        Cathode.const_set controller_name, Class.new(Cathode::BaseController)
+      end
 
       @actions = {}
       actions_to_add = params[:actions] == [:all] ? [:index, :show, :create, :update, :destroy] : params[:actions]
