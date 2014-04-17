@@ -15,20 +15,18 @@ applications.
   * Deleting a resource
 * Endpoints respond to JSON and output JSON by default (possibly add XML et al later on?)
 * Versioning of endpoints
-* Deprecation
-* Auto-documentation
 
 ## Roadmap
-* Goodies on the index action
-* More authentication options – perhaps integrate w/ CanCan or similar?
+* Custom actions on resources and versions (aka arbitrary endpoints)
+* Pre-defined subactions on :index (paging, cursoring, etc)
+* Real authentication – perhaps integrate w/ CanCan or similar?
 * Deprecation messages
-* Generation of documentation
-* Generation of changelog
+* Auto-documentation / changelog
 
 ## Getting Started
 Install the gem:
 
-```ruby
+```bash
 gem install cathode
 ```
 
