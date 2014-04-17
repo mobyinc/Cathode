@@ -37,16 +37,6 @@ module Cathode
       end
     end
 
-    def perform(context)
-      params = context.params
-
-      return { status: :unauthorized } if action_access_filter && !action_access_filter.call
-
-      if @custom_logic
-        { custom_logic: @custom_logic }
-      end
-    end
-
     def allowed?(subaction)
       @allowed_subactions.include? subaction
     end
@@ -70,7 +60,7 @@ module Cathode
     end
 
     def override(&custom_logic)
-      @custom_logic = custom_logic
+      @action_block = custom_logic
     end
   end
 

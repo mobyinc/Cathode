@@ -22,10 +22,6 @@ module Cathode
       Version.all[@version.to_s] = self
     end
 
-    def perform_request(resource, context)
-      resources[resource].actions[context.params[:action].to_sym].perform context
-    end
-
     def resource?(resource)
       @resources.include? resource.to_sym
     end
