@@ -221,7 +221,7 @@ Cathode::Base.version 1 do
         body user.password_reset_code
         status :ok
       else
-        body "No user exists with id #{params[:id]"
+        body "No user exists with id #{params[:id]}"
         status :bad_request
       end
     end
