@@ -167,7 +167,7 @@ resource :products do
 end
 ```
 
-## Custom action behavior
+## Overriding default actions
 Of course, you won’t want to use Cathode’s default actions in every scenario. To
 use your own logic, either use the `override_action` method at the resource
 level, or the `override` method inside an action block. For example, to show a
@@ -195,6 +195,39 @@ The `override` and `override_action` blocks have access to anything the
 controller would normally have access to, so you can use `request`, `response`,
 and `params` normally. Note that overriding means the request won’t go through
 Cathode’s regular pipeline, so you must render the response manually.
+
+## Custom actions & non-resourceful endpoints
+Your API is bound to need actions that don’t map to standard CRUD operations,
+and Cathode makes this easy to do. You can define your own actions at both the
+version level and the resource level.
+
+Use the `body` and `status` methods to set the response body and HTTP status.
+Both of these methods take either a single argument, or a block that will be
+evaluated to determine the value. Choose whichever works best in your situation.
+
+```ruby
+Cathode::Base.version 1 do
+  # sending a different body but the same status
+  action :status do
+    body { API.alive? ? 'Everything running smoothly' : 'Something has gone wrong' }
+    status :ok # not really necessary, since `:ok` is the default
+  end
+
+  # sending different body/status depending on the result of a condition
+  resource :users do
+    action :password_reset_code do
+      user = User.find(params[:id])
+      if user.present?
+        body user.password_reset_code
+        status :ok
+      else
+        body "No user exists with id #{params[:id]"
+        status :bad_request
+      end
+    end
+  end
+end
+```
 
 ## Deprecation
 With Cathode’s slick versioning, you’ll be implicitly deprecating junk in previous
