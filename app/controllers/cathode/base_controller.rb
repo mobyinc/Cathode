@@ -23,7 +23,7 @@ module Cathode
   private
 
     def make_request
-      request = Cathode::Request.new self
+      request = Cathode::Request.create self
 
       if request.custom_logic
         instance_eval(&request.custom_logic)

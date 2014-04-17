@@ -2,6 +2,7 @@ require 'pry'
 require 'cathode/request'
 require 'cathode/resource'
 require 'cathode/action'
+require 'cathode/action_request'
 require 'cathode/version'
 require 'cathode/railtie'
 
