@@ -12,7 +12,7 @@ describe Cathode::Request do
           attributes do
             params.require(:product).permit(:title)
           end
-          action :custom do
+          get :custom do
             body Product.last
           end
         end

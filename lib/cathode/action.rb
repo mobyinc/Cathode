@@ -4,9 +4,11 @@ module Cathode
     attr_reader :action_access_filter,
                 :name,
                 :resource,
-                :action_block
+                :action_block,
+                :override_block,
+                :http_method
 
-    def self.create(action, resource, &block)
+    def self.create(action, resource, params = nil, &block)
       klass = case action
               when :index
                 IndexAction
@@ -21,20 +23,26 @@ module Cathode
               else
                 CustomAction
               end
-      klass.new(action, resource, &block)
+      klass.new(action, resource, params, &block)
     end
 
-    def initialize(action, resource, &block)
+    def initialize(action, resource, params = {}, &block)
       @name, @resource = action, resource
       @allowed_subactions = []
 
       if block_given?
-        if [:index, :show, :create, :update, :destroy].include? action
-          instance_eval &block
-        else 
-          @action_block = block
+        if params[:override]
+          override &block
+        else
+          if [:index, :show, :create, :update, :destroy].include? action
+            instance_eval &block
+          else 
+            @action_block = block
+          end
         end
       end
+
+      @http_method = params[:method] if params.present?
     end
 
     def allowed?(subaction)
@@ -59,8 +67,12 @@ module Cathode
       @allowed_subactions = subactions
     end
 
-    def override(&custom_logic)
-      @action_block = custom_logic
+    def replace(&block)
+      @action_block = block
+    end
+
+    def override(&block)
+      @override_block = block
     end
   end
 

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Cathode::Action do
   describe '.create' do
-    subject { Cathode::Action.create(action, :products, &block) }
+    subject { Cathode::Action.create(action, :products, try(:params) || {}, &block) }
 
     context 'with a default action' do
       let(:action) { :index }
@@ -10,7 +10,15 @@ describe Cathode::Action do
       context 'with an override' do
         let(:block) { proc { override { Product.last } } }
 
-        it 'sets the override as the action block' do
+        it 'sets the override block' do
+          expect(subject.override_block.call).to eq(Product.last)
+        end
+      end
+
+      context 'with a replacement' do
+        let(:block) { proc { replace { Product.last } } }
+
+        it 'sets the replacement as the action block' do
           expect(subject.action_block.call).to eq(Product.last)
         end
       end
@@ -18,6 +26,7 @@ describe Cathode::Action do
 
     context 'with a custom action' do
       let(:action) { :custom }
+      let(:params) { { method: :get } }
       let(:block) { proc { Product.last } }
 
       it 'creates a CustomAction' do
@@ -26,6 +35,10 @@ describe Cathode::Action do
 
       it 'sets the block as the action block' do
         expect(subject.action_block.call).to eq(Product.last)
+      end
+
+      it 'sets the HTTP method' do
+        expect(subject.http_method).to eq(:get)
       end
     end
 

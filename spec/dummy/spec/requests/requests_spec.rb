@@ -51,7 +51,7 @@ describe 'API' do
       use_api do
         version 1.5 do
           resource :products, actions: [:all] do
-            attributes do |params|
+            attributes do
               params.require(:product).permit(:title, :cost)
             end
           end
@@ -166,6 +166,43 @@ describe 'API' do
     end
   end
 
+  context 'with action replacing' do
+    before do
+      use_api do
+        resource :products do
+          action :show do
+            replace do
+              body Product.last
+            end
+          end
+          replace_action :index do
+            body Product.all.reverse
+          end
+        end
+      end
+    end
+
+    let!(:products) { create_list(:product, 3) }
+
+    describe 'with replace defined inside action' do
+      subject { make_request(:get, 'api/products/1', nil, '1.0') }
+
+      it 'uses the replace logic instead of the default behavior' do
+        subject
+        expect(response.body).to eq(Product.last.to_json)
+      end
+    end
+
+    describe 'with replace defined as the action' do
+      subject { make_request(:get, 'api/products', nil, '1.0') }
+
+      it 'uses the replace logic instead of the default behavior' do
+        subject
+        expect(JSON.parse(response.body).map { |p| p['id'] }).to eq(Product.all.reverse.map(&:id))
+      end
+    end
+  end
+
   context 'with action overriding' do
     before do
       use_api do
@@ -199,6 +236,51 @@ describe 'API' do
       it 'uses the custom logic instead of the default behavior' do
         subject
         expect(JSON.parse(response.body).map { |p| p['id'] }).to eq(Product.all.reverse.map(&:id))
+      end
+    end
+  end
+
+  context 'with a custom action' do
+    before do
+      use_api do
+        resource :products do
+          override_action :custom_override, method: :get do
+            render json: Product.last
+          end
+          get :custom_replace do
+            body Product.all.reverse
+          end
+        end
+      end
+    end
+
+    let!(:products) { create_list(:product, 3) }
+
+    context 'with replace (default)' do
+      subject { make_request(:get, 'api/products/custom_replace', nil, '1.0') }
+
+      it 'sets the status' do
+        subject
+        expect(response.status).to eq(200)
+      end
+
+      it 'sets the body with the replace logic' do
+        subject
+        expect(JSON.parse(response.body).map { |p| p['id'] }).to eq(Product.all.reverse.map(&:id))
+      end
+    end
+
+    context 'with override' do
+      subject { make_request(:get, 'api/products/custom_override', nil, '1.0') }
+
+      it 'sets the status' do
+        subject
+        expect(response.status).to eq(200)
+      end
+
+      it 'uses the override logic' do
+        subject
+        expect(response.body).to eq(Product.last.to_json)
       end
     end
   end

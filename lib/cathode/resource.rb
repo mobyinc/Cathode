@@ -1,5 +1,7 @@
 module Cathode
   class Resource
+    DEFAULT_ACTIONS = [:index, :show, :create, :update, :destroy]
+
     attr_reader :actions,
                 :name
 
@@ -16,7 +18,7 @@ module Cathode
       end
 
       @actions = {}
-      actions_to_add = params[:actions] == [:all] ? [:index, :show, :create, :update, :destroy] : params[:actions]
+      actions_to_add = params[:actions] == [:all] ? DEFAULT_ACTIONS : params[:actions]
       actions_to_add.each do |action_name|
         action action_name
       end
@@ -27,10 +29,34 @@ module Cathode
       end
     end
 
+    def default_actions
+      actions.select { |key, val| DEFAULT_ACTIONS.include? key }
+    end
+
+    def custom_actions
+      actions.select { |key, val| !DEFAULT_ACTIONS.include?(key) }
+    end
+
   private
 
-    def action(action, &block)
-      @actions[action] = Action.create(action, @name, &block)
+    def action(action, params = {}, &block)
+      @actions[action] = Action.create(action, @name, params, &block)
+    end
+
+    def get(action_name, &block)
+      action action_name, method: :get, &block
+    end
+
+    def post(action_name, &block)
+      action action_name, method: :post, &block
+    end
+
+    def put(action_name, &block)
+      action action_name, method: :put, &block
+    end
+
+    def delete(action_name, &block)
+      action action_name, method: :delete, &block
     end
 
     def attributes(&block)
@@ -42,10 +68,14 @@ module Cathode
       @actions[:update].strong_params = block if @actions[:update].present?
     end
 
-    def override_action(action, &block)
-      action action do
-        override(&block)
+    def replace_action(action_name, &block)
+      action action_name do
+        replace(&block)
       end
+    end
+
+    def override_action(action_name, params = {}, &block)
+      action action_name, params.merge(override: true), &block
     end
 
     def require_resource_constant!(resource_name)

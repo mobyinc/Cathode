@@ -10,7 +10,6 @@ module Cathode
 
     delegate :allowed?, to: :action
     delegate :params, to: :context
-    delegate :render, to: :context
 
     class << self
       def create(context)
@@ -49,17 +48,31 @@ module Cathode
       end
 
       @resource = context.params[:controller].camelize.demodulize.downcase.to_sym
-      unless version.action?(resource, context.params[:action])
+
+      action_name = params[:action]
+      if action_name == 'custom'
+        action_name = context.request.path.split('/').last
+      end
+
+      unless version.action?(resource, action_name)
         @_status = :not_found
         return self
       end
 
-      @action = version.resources[resource].actions[context.params[:action].to_sym]
+      @action = version.resources[resource].actions[action_name.to_sym]
       @strong_params = @action.strong_params
       @_status = :ok
 
-      action_block = action.action_block || default_action_block
-      instance_eval(&action_block)
+      if action.override_block
+        context.instance_eval(&action.override_block)
+      else
+        action_block = action.action_block
+        if action_block.nil? && respond_to?(:default_action_block)
+          action_block = default_action_block
+        end
+
+        instance_eval(&action_block)
+      end
 
       body if @_body.nil?
     end

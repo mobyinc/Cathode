@@ -70,5 +70,39 @@ describe Cathode::Resource do
         end
       end
     end
+
+    context 'with custom action' do
+      subject { Cathode::Resource.new(:products, nil) { get :custom } }
+
+      it 'sets up the action' do
+        expect(subject.actions[:custom].http_method).to eq(:get)
+      end
+    end
+  end
+
+  describe 'default and custom actions' do
+    let(:resource) do
+      Cathode::Resource.new(:products, actions: [:all]) do
+        get :custom
+        post :custom2
+        attributes {}
+      end
+    end
+
+    describe '#default_actions' do
+      subject { resource.default_actions }
+
+      it 'returns the default actions' do
+        expect(subject.keys).to match_array([:index, :show, :create, :update, :destroy])
+      end
+    end
+
+    describe '#custom_actions' do
+      subject { resource.custom_actions }
+
+      it 'returns the custom actions' do
+        expect(subject.keys).to match_array([:custom, :custom2])
+      end
+    end
   end
 end

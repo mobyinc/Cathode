@@ -167,11 +167,22 @@ resource :products do
 end
 ```
 
-## Overriding default actions
-Of course, you won’t want to use Cathode’s default actions in every scenario. To
-use your own logic, either use the `override_action` method at the resource
-level, or the `override` method inside an action block. For example, to show a
-random sale instead on the `show` action, these are functionally equivalent:
+## Replacing & Overriding Default Actions
+Of course, you won’t want to use Cathode’s default actions in every scenario.
+There are two ways to supply your own behavior:
+
+  * *Replacing* the action allows you to override what the action does but still
+    go through the normal Cathode request pipeline, so you’ll still be able to
+    use request helpers like `body` and `status`. Use the `replace` method at
+    the action level or the `replace_action` method at the resource level.
+  * *Overriding* the action allows you to remove the action from Cathode’s
+    request pipeline and requires you to do all the processing and rendering
+    logic yourself. Overriding an action causes it to be run in the context of
+    the *Rails request*, as if you were in a normal controller. You won’t have
+    access to any Cathode helpers like `body` and `status`, but you will have
+    access to anything a controller would, like `request` and `render`. Use the
+    `override` method at the action level or the `override_action` method at the
+    resource level. Prefer `replace` over `override`.
 
 ```ruby
 resource :sales, actions: [:all] do
@@ -183,20 +194,13 @@ end
 
 ```ruby
 resource :sales, actions: [:all] do
-  action :show do
-    override do
-      render json: Sale.sample
-    end
+  replace_action :show do
+    body Sale.sample
   end
 end
 ```
 
-The `override` and `override_action` blocks have access to anything the
-controller would normally have access to, so you can use `request`, `response`,
-and `params` normally. Note that overriding means the request won’t go through
-Cathode’s regular pipeline, so you must render the response manually.
-
-## Custom actions & non-resourceful endpoints
+## Custom Actions & Non-resourceful Endpoints
 Your API is bound to need actions that don’t map to standard CRUD operations,
 and Cathode makes this easy to do. You can define your own actions at both the
 version level and the resource level.
@@ -228,6 +232,10 @@ Cathode::Base.version 1 do
   end
 end
 ```
+
+Note that custom actions use the `replace` functionality described above by
+default. You can use the override functionality instead by using the `override`
+and `override_action` methods.
 
 ## Deprecation
 With Cathode’s slick versioning, you’ll be implicitly deprecating junk in previous
