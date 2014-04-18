@@ -109,7 +109,7 @@ describe Cathode::Version do
     context 'with inherited version' do
       before do
         Cathode::Version.new 1 do
-          resource :sales, actions: [:index, :create]
+          resource :sales, actions: [:index, :show]
         end
       end
 
@@ -118,7 +118,7 @@ describe Cathode::Version do
       context 'with an additional resource' do
         let(:block) do
           proc do
-            resource :products, actions: [:all]
+            resource :products, actions: [:index]
           end
         end
 
@@ -143,7 +143,7 @@ describe Cathode::Version do
         context 'with a single resource' do
           let(:block) do
             proc do
-              resource :products, actions: [:all]
+              resource :products, actions: [:index]
               remove_resource :sales
             end
           end
@@ -156,7 +156,7 @@ describe Cathode::Version do
         context 'with an array of resources' do
           before do
             Cathode::Version.new 1.2 do
-              resource :products, actions: [:all]
+              resource :products, actions: [:index]
             end
           end
 
@@ -176,7 +176,7 @@ describe Cathode::Version do
         context 'with an unkown action' do
           let(:block) do
             proc do
-              remove_action :sales, :show
+              remove_action :sales, :destroy
             end
           end
 
@@ -188,30 +188,30 @@ describe Cathode::Version do
         context 'with a single action' do
           let(:block) do
             proc do
-              resource :products, actions: [:all]
+              resource :products, actions: [:index]
               remove_actions :sales, :index
             end
           end
 
           it 'does not use the action' do
             subject
-            expect(subject.resources[:sales].actions.keys).to match_array([:create])
-            expect(subject.resources[:products].actions.keys).to match_array([:index, :show, :create, :update, :destroy])
+            expect(subject.resources[:sales].actions.keys).to match_array([:show])
+            expect(subject.resources[:products].actions.keys).to match_array([:index])
           end
         end
 
         context 'with an array of actions' do
           let(:block) do
             proc do
-              resource :products, actions: [:all]
-              remove_actions :sales, [:index, :create]
+              resource :products, actions: [:index]
+              remove_actions :sales, [:index, :show]
             end
           end
 
           it 'does not use the actions' do
             subject
             expect(subject.resources[:sales].actions.keys).to match_array([])
-            expect(subject.resources[:products].actions.keys).to match_array([:index, :show, :create, :update, :destroy])
+            expect(subject.resources[:products].actions.keys).to match_array([:index])
           end
         end
       end

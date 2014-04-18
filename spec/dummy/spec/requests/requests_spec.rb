@@ -129,7 +129,7 @@ describe 'API' do
   context 'with cascading versions' do
     before(:each) do
       use_api do
-        resource :products, actions: [:all]
+        resource :products, actions: [:index, :show]
         version '1.0.1' do
           resource :sales, actions: [:index, :show]
         end

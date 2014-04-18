@@ -11,7 +11,7 @@ describe Cathode::Resource do
     end
 
     context 'with all methods' do
-      subject { Cathode::Resource.new(:products, actions: [:all]) }
+      subject { Cathode::Resource.new(:products, actions: [:index]) }
 
       it 'creates a controller' do
         subject

@@ -10,6 +10,7 @@ module Cathode
 
     delegate :allowed?, to: :action
     delegate :params, to: :context
+    delegate :render, to: :context
 
     class << self
       def create(context)

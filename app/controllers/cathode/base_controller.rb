@@ -28,7 +28,7 @@ module Cathode
       if request.custom_logic
         instance_eval(&request.custom_logic)
       else
-        render json: request.body, status: request.status
+        render json: request._body, status: request._status
       end
     end
 

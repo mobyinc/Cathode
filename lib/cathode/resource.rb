@@ -21,6 +21,10 @@ module Cathode
         action action_name
       end
       instance_eval(&block) if block_given?
+
+      @actions.each do |action_name, action|
+        action.after_resource_initialized if action.respond_to? :after_resource_initialized
+      end
     end
 
   private

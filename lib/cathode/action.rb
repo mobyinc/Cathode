@@ -64,24 +64,26 @@ module Cathode
     end
   end
 
+  module RequiresStrongParams
+    def after_resource_initialized
+      if strong_params.nil?
+        fail UnknownAttributesError, "An attributes block was not specified for `#{name}' action on resource `#{resource}'"
+      end
+
+      self
+    end
+  end
+
   class IndexAction < Action; end
 
   class ShowAction < Action; end
 
   class CreateAction < Action
-    def default_action_block
-      if false & strong_params.nil?
-        fail UnknownAttributesError, "An attributes block was not specified for `create' action on resource `#{resource}'"
-      end
-    end
+    include RequiresStrongParams
   end
 
   class UpdateAction < Action
-    def default_action(params)
-      if strong_params.nil?
-        fail UnknownAttributesError, "An attributes block was not specified for `create' action on resource `#{resource}'"
-      end
-    end
+    include RequiresStrongParams
   end
 
   class DestroyAction < Action; end
