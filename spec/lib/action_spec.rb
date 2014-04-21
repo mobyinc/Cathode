@@ -26,19 +26,33 @@ describe Cathode::Action do
 
     context 'with a custom action' do
       let(:action) { :custom }
-      let(:params) { { method: :get } }
       let(:block) { proc { Product.last } }
 
-      it 'creates a CustomAction' do
-        expect(subject.class).to eq(Cathode::CustomAction)
+      context 'with method' do
+        let(:params) { { method: :get } }
+
+        it 'creates a CustomAction' do
+          expect(subject.class).to eq(Cathode::CustomAction)
+        end
+
+        it 'sets the block as the action block' do
+          expect(subject.action_block.call).to eq(Product.last)
+        end
+
+        it 'sets the HTTP method' do
+          expect(subject.http_method).to eq(:get)
+        end
       end
 
-      it 'sets the block as the action block' do
-        expect(subject.action_block.call).to eq(Product.last)
-      end
+      context 'without method' do
+        let(:params) { {} }
 
-      it 'sets the HTTP method' do
-        expect(subject.http_method).to eq(:get)
+        it 'raises an error' do
+          expect { subject }.to raise_error(
+            Cathode::RequestMethodMissingError,
+            "You must specify an HTTP method (get, put, post, delete) for action `custom'"
+          )
+        end
       end
     end
 

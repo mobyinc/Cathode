@@ -2,12 +2,11 @@
 systems.**
 
 # Cathode
-Cathode is a gem for Rails projects that generates API boilerplate for REST
-applications.
+Cathode is a gem for Rails projects that generates API boilerplate for
+resourceful applications.
 
 ## Features
-* Automatically generate endpoints (routes + controllers) for common RESTful
-  actions:
+* Generate endpoints for common CRUD actions:
   * Listing resources, optionally filtered and paginated
   * Finding a single resource
   * Creating a new resource
@@ -15,9 +14,9 @@ applications.
   * Deleting a resource
 * Endpoints respond to JSON and output JSON by default (possibly add XML et al later on?)
 * Versioning of endpoints
+* Custom (non-resourceful) actions on versions and resources
 
 ## Roadmap
-* Custom actions on resources and versions (aka arbitrary endpoints)
 * Pre-defined subactions on :index (paging, cursoring, etc)
 * Real authentication – perhaps integrate w/ CanCan or similar?
 * Deprecation messages

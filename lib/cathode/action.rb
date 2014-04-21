@@ -43,6 +43,8 @@ module Cathode
       end
 
       @http_method = params[:method] if params.present?
+
+      after_initialize if respond_to? :after_initialize
     end
 
     def allowed?(subaction)
@@ -100,5 +102,11 @@ module Cathode
 
   class DestroyAction < Action; end
 
-  class CustomAction < Action; end
+  class CustomAction < Action
+    def after_initialize
+      if http_method.nil?
+        raise RequestMethodMissingError, "You must specify an HTTP method (get, put, post, delete) for action `#{@name}'"
+      end
+    end
+  end
 end
