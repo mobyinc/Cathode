@@ -3,7 +3,11 @@ require 'spec_helper'
 describe Cathode::Request do
   describe '.create' do
     subject do
-      Cathode::Request.create(context_stub(headers: headers, params: ActionController::Parameters.new(params.merge(controller: 'products', action: action))))
+      Cathode::Request.create(context_stub(
+        headers: headers,
+        params: ActionController::Parameters.new(params.merge(controller: 'products', action: action)),
+        path: try(:path)
+       ))
     end
 
     before do
@@ -202,6 +206,7 @@ describe Cathode::Request do
         let(:action) { 'custom' }
         let!(:products) { create_list(:product, 3) }
         let(:params) { {} }
+        let(:path) { 'products/custom'  }
 
         it 'sets status as ok' do
           expect(subject._status).to eq(:ok)

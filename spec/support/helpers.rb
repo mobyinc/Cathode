@@ -10,6 +10,9 @@ module SpecHelpers
   end
 
   def context_stub(options)
-    Struct.new(:request, :params).new(Struct.new(:headers).new(options[:headers]), options[:params])
+    Struct.new(:request, :params).new(
+      Struct.new(:headers, :path).new(options[:headers], options[:path]),
+      options[:params]
+    )
   end
 end
