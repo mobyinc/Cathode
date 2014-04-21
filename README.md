@@ -60,7 +60,7 @@ be returned in the `index` call, and no permissions will be enforced on the
 search for it using the `Product.title` field.
 
 In version 1.0.1, endpoints are added for the `sales` endpoint: `get api/sales/`
-and `get api/sales/{id}`, etc. Those endpoints are not accessible in version 1.
+and `get api/sales/{id}`. Those endpoints are not accessible in version 1.
 However, because versions cascade, the actions on the `products` resource are all
 accessible in version 1.0.1.
 
@@ -150,7 +150,7 @@ minor versions (x.y.0), or all three (x.y.z).
 
 ## Goodies on the `index` action
 By default `index` actions return all records in your resource’s default scope.
-However, common operations–like filtering, sorting, pagination, cursoring,
+However, common operations–like filtering, sorting, paging, cursoring,
 etc–are also supported. For example, an application might make the following API
 call:
 
