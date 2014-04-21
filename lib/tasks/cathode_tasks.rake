@@ -1,4 +1,5 @@
-# desc "Explaining what the task does"
-# task :cathode do
-#   # Task goes here
-# end
+namespace :cathode do
+  task :info do
+    puts Cathode::Debug.info
+  end
+end

@@ -1,6 +1,5 @@
 require 'cathode/engine'
 require 'cathode/base'
-require 'cathode/exceptions'
 
 module Cathode
   class Engine < ::Rails::Engine

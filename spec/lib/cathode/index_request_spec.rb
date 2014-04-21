@@ -31,7 +31,7 @@ describe Cathode::IndexRequest do
     end
   end
 
-  describe 'with paging' do
+  context 'with paging' do
     let(:params) { { page: 2, per_page: 2 } }
 
     context 'when allowed' do

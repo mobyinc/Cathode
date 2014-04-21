@@ -6,10 +6,12 @@ require 'cathode/create_request'
 require 'cathode/update_request'
 require 'cathode/destroy_request'
 require 'cathode/custom_request'
+require 'cathode/exceptions'
 require 'cathode/resource'
 require 'cathode/action'
 require 'cathode/version'
 require 'cathode/railtie'
+require 'cathode/debug'
 
 module Cathode
   class Base
