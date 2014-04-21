@@ -44,7 +44,7 @@ Cathode::Base.define do
   resource :products, actions: [:index, :show, :search]
 
   version '1.0.1' do
-    resource :sales, actions: :all
+    resource :sales, actions: [:index, :show]
   end
 end
 ```
@@ -53,15 +53,15 @@ Contrary to Rails’s `routes.rb` file–in which the default actions are includ
 unless explicitly excluded–only actions that you specify are defined. Out of
 the box, the actions available are: `:index, :show, :create, :update, :delete`.
 
-In version 1, the following routes are created: `get api/products/`, `get
+In version 1, the following endpoints are created: `get api/products/`, `get
 api/products/{id}`, and `get api/products/search`. By default, all products will
 be returned in the `index` call, and no permissions will be enforced on the
 `show` call. By default, the `search` call will take a `query` parameter and
 search for it using the `Product.title` field.
 
-In version 1.0.1, routes are created for the `sales` endpoint: `get api/sales/`,
-`get api/sales/{id}`, etc. Those endpoints are not accessible in version 1.
-However, because versions cascade, the routes on the `products` endpoint are all
+In version 1.0.1, endpoints are added for the `sales` endpoint: `get api/sales/`
+and `get api/sales/{id}`, etc. Those endpoints are not accessible in version 1.
+However, because versions cascade, the actions on the `products` resource are all
 accessible in version 1.0.1.
 
 ### Strong parameters for `create` and `update` actions
@@ -73,7 +73,7 @@ would in a controller.
 
 ```ruby
 # use the same attribute whitelist for `create` and `update`
-resource :products do
+resource :products, actions: [:create, :update] do
   attributes do |params|
     params.require(:product).permit(:title, :description, :cost)
   end
@@ -95,8 +95,8 @@ resource :products do
 end
 ```
 
-Requests that attempt to write non-whitelisted attributes will respond with `400
-Bad Request`.
+Requests that raise a params exception (e.g., `ActionController::ParameterMissing`)
+respond with `400 Bad Request`.
 
 ## Serialization
 Cathode doesn’t do any explicit serialization of resources when responding to
@@ -105,13 +105,12 @@ serializers](https://github.com/rails-api/active_model_serializers) if you’ve
 defined them.
 
 ## Versioning
-Versioning is encouraged to prevent you from introducing breaking API changes.
-Your API’s versions should use [Semantic Versioning](http://semver.org/), which
-enables Cathode to deduce patches, non-breaking changes, and breaking changes. Cathode
-also makes it easy to deprecate all or part of any version of your API at any
-time.
+Cathode has first-class support for API versioning and aims to make extending
+versions and deprecating old functionality an easy process. You’re encouraged to
+use [Semantic Versioning](http://semver.org/), and all Cathode version numbers
+must be SemVer-compliant.
 
-If you define your resources without any versions, Cathode assumes it’s version
+If you define resources without a version, Cathode assumes it’s version
 `1.0.0` of your API. When you’re ready to introduce changes, you can
 easily provision a new version:
 
@@ -119,7 +118,7 @@ easily provision a new version:
 resource :products, actions: [:index, :show, :search]
 
 version 1.1 do
-  resource :sales, actions: :all
+  resource :sales, actions: [:index]
   # the products resource is inherited from version 1
 end
 
@@ -144,6 +143,10 @@ still be able to access the endpoint, but users of version `2` will not.
 
 Usually, changes like these would require the addition of new route namespaces
 and groups of controllers. With Cathode, these are all taken care of for you.
+
+Note that, while these examples are using minor- and patch-level versions, you
+are not required to do so. You can use only major versions (x.0.0), major and
+minor versions (x.y.0), or all three (x.y.z).
 
 ## Goodies on the `index` action
 By default `index` actions return all records in your resource’s default scope.
@@ -292,7 +295,7 @@ api/
 ```ruby
 # api/v1.rb
 Cathode::Base.version 1 do
-  resource :products, actions: :all
+  resource :products, actions: [:index, :show, :delete]
 end
 
 # api/v2.rb
@@ -320,7 +323,7 @@ api/
 ```ruby
 # api/v1/products.rb
 Cathode::Base.version 1 do
-  resource :products, actions: :all
+  resource :products, actions: [:index, :show, :delete]
 end
 
 # api/v2/products.rb
