@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Cathode::Resource do
   describe '.new' do
     context 'with a nonexistent resource' do
-      subject { Cathode::Resource.new(:boxes, [:all]) }
+      subject { Cathode::Resource.new(:boxes, :all) }
 
       it 'raises an error' do
         expect { subject }.to raise_error(Cathode::UnknownResourceError)
@@ -54,7 +54,7 @@ describe Cathode::Resource do
       end
 
       context 'when create and update are specified' do
-        let(:actions) { [:all] }
+        let(:actions) { :all }
 
         it 'sets the strong params of both actions' do
           expect(subject.actions[:create].strong_params).to_not be_nil
@@ -82,7 +82,7 @@ describe Cathode::Resource do
 
   describe 'default and custom actions' do
     let(:resource) do
-      Cathode::Resource.new(:products, actions: [:all]) do
+      Cathode::Resource.new(:products, actions: :all) do
         get :custom
         post :custom2
         attributes {}

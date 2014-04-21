@@ -18,7 +18,7 @@ module Cathode
       end
 
       @actions = {}
-      actions_to_add = params[:actions] == [:all] ? DEFAULT_ACTIONS : params[:actions]
+      actions_to_add = params[:actions] == :all ? DEFAULT_ACTIONS : params[:actions]
       actions_to_add.each do |action_name|
         action action_name
       end

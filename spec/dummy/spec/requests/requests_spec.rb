@@ -50,7 +50,7 @@ describe 'API' do
     before do
       use_api do
         version 1.5 do
-          resource :products, actions: [:all] do
+          resource :products, actions: :all do
             attributes do
               params.require(:product).permit(:title, :cost)
             end

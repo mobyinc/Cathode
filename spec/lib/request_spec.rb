@@ -12,7 +12,7 @@ describe Cathode::Request do
 
     before do
       use_api do
-        resource :products, actions: [:all] do
+        resource :products, actions: :all do
           attributes do
             params.require(:product).permit(:title)
           end

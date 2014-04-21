@@ -44,14 +44,14 @@ Cathode::Base.define do
   resource :products, actions: [:index, :show, :search]
 
   version '1.0.1' do
-    resource :sales, actions: [:all]
+    resource :sales, actions: :all
   end
 end
 ```
 
 Contrary to Rails’s `routes.rb` file–in which the default actions are included
 unless explicitly excluded–only actions that you specify are defined. Out of
-the box, the actions available are: `:index, :show, :create, :update, :delete, :search`.
+the box, the actions available are: `:index, :show, :create, :update, :delete`.
 
 In version 1, the following routes are created: `get api/products/`, `get
 api/products/{id}`, and `get api/products/search`. By default, all products will
@@ -119,7 +119,7 @@ easily provision a new version:
 resource :products, actions: [:index, :show, :search]
 
 version 1.1 do
-  resource :sales, actions: [:all]
+  resource :sales, actions: :all
   # the products resource is inherited from version 1
 end
 
@@ -184,7 +184,7 @@ There are two ways to supply your own behavior:
     resource level. Prefer `replace` over `override`.
 
 ```ruby
-resource :sales, actions: [:all] do
+resource :sales, actions: :all do
   override_action :show do
     render json: Sale.sample
   end
@@ -192,7 +192,7 @@ end
 ```
 
 ```ruby
-resource :sales, actions: [:all] do
+resource :sales, actions: :all do
   replace_action :show do
     body Sale.sample
   end
@@ -268,7 +268,7 @@ them all in a single file:
 
 Cathode::Base.define do
   version 1 do
-    resource :products, actions: [:all]
+    resource :products, actions: :all
   end
 
   version 2 do
@@ -292,7 +292,7 @@ api/
 ```ruby
 # api/v1.rb
 Cathode::Base.version 1 do
-  resource :products, actions: [:all]
+  resource :products, actions: :all
 end
 
 # api/v2.rb
@@ -320,7 +320,7 @@ api/
 ```ruby
 # api/v1/products.rb
 Cathode::Base.version 1 do
-  resource :products, actions: [:all]
+  resource :products, actions: :all
 end
 
 # api/v2/products.rb
