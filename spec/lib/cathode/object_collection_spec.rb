@@ -2,8 +2,9 @@ require 'spec_helper'
 
 describe Cathode::ObjectCollection do
   let(:collection) { Cathode::ObjectCollection.new }
-  let(:battery) { Struct.new(:name).new(:battery) }
-  let(:charger) { Struct.new(:name).new(:charger) }
+  let(:obj_struct) { Struct.new(:name) }
+  let(:battery) { obj_struct.new(:battery) }
+  let(:charger) { obj_struct.new(:charger) }
   before do
     collection << battery
     collection << charger
@@ -14,6 +15,28 @@ describe Cathode::ObjectCollection do
 
     it 'returns the item with the matching name' do
       expect(subject).to eq(battery)
+    end
+  end
+
+  describe '#add' do
+    subject { collection.add(items) }
+    let(:cord) { obj_struct.new(:cord) }
+    let(:connector) { obj_struct.new(:connector) }
+
+    context 'with single item' do
+      let(:items) { cord }
+
+      it 'adds the item to the objects' do
+        expect(subject.objects).to match_array([battery, charger, cord])
+      end
+    end
+
+    context 'with an array of items' do
+      let(:items) { [cord, connector] }
+
+      it 'adds the items to the objects' do
+        expect(subject.objects).to match_array([battery, charger, cord, connector])
+      end
     end
   end
 

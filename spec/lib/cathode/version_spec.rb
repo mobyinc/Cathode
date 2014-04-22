@@ -37,6 +37,28 @@ describe Cathode::Version do
     end
   end
 
+  describe '.define' do
+    subject { Cathode::Version.define('1.0.0') { resource :sales } }
+
+    context 'when version already exists' do
+      before do
+        use_api do
+          resource :products, actions: [:index]
+        end
+      end
+
+      it 'adds to the version' do
+        expect(subject.resources.names).to match_array([:products, :sales])
+      end
+    end
+
+    context 'when version does not exist' do
+      it 'creates a new version' do
+        expect(subject.resources.names).to match_array([:sales])
+      end
+    end
+  end
+
   describe '.new' do
     subject { Cathode::Version.new(version, &block) }
     let(:version) { 1 }
@@ -90,19 +112,19 @@ describe Cathode::Version do
     context 'with params and block' do
       let(:block) do
         proc do
-          resource :salespeople, actions: [:index] do
-            action :create
+          get :custom
+          resource :sales, actions: [:index] do
+            action :show
           end
         end
       end
 
       it 'creates the resource' do
-        expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
-          expect(resource).to eq(:salespeople)
-          expect(params).to eq(actions: [:index])
-          expect(block).to_not be_nil
-        end
-        subject
+        expect(subject.resources.names).to match_array([:sales])
+      end
+
+      it 'creates the action' do
+        expect(subject.actions.names).to match_array([:custom])
       end
     end
 
@@ -110,15 +132,13 @@ describe Cathode::Version do
       let(:block) do
         proc do
           resource :products, actions: [:index]
-          resource :products, actions: [:create]
+          resource :products, actions: [:show]
         end
       end
 
-      it 'raises an error' do
-        expect { subject }.to raise_error(
-          Cathode::DuplicateResourceError,
-          "Resource `products' already defined on version 1.0.0"
-        )
+      it 'combines the actions' do
+        expect(subject.resources.names).to match_array([:products])
+        expect(subject.resources.find(:products).actions.names).to match_array([:index, :show])
       end
     end
 
@@ -126,39 +146,46 @@ describe Cathode::Version do
       before do
         Cathode::Version.new 1 do
           resource :sales, actions: [:index, :show]
+          get :status
         end
       end
-
       let(:version) { 1.5 }
 
       context 'with a new action' do
-        let(:block) { proc { resource :sales { action :destroy } } }
-
-        it 'inherits the resources from the previous version' do
-          expect(subject.resources.names).to match_array([:sales])
-          expect(subject.resources.find(:sales).actions.names).to match_array([:index, :show, :destroy])
-        end
-      end
-
-      context 'with an additional resource' do
         let(:block) do
           proc do
-            resource :products, actions: [:index]
+            resource :sales do
+              action :destroy
+            end
           end
         end
 
+        it 'inherits the actions from the previous version' do
+          expect(subject.resources.names).to match_array([:sales])
+          expect(subject.resources.find(:sales).actions.names).to match_array([:index, :show, :destroy])
+          expect(subject.actions.names).to eq([:status])
+        end
+
+        it 'leaves the previous version intact' do
+          subject
+          previous_version = Cathode::Version.find('1.0.0')
+          expect(previous_version.resources.find(:sales).actions.names).to match_array([:index, :show])
+        end
+      end
+
+      context 'with a new resource' do
+        let(:block) { proc { resource :products, actions: [:index] } }
+
         it 'inherits the resources from the previous version' do
           expect(subject.resources.names).to match_array([:products, :sales])
+          expect(subject.resources.find(:sales).actions.names).to match_array([:index, :show])
+          expect(subject.resources.find(:products).actions.names).to match_array([:index])
         end
       end
 
       context 'with a removed resource' do
         context 'with an unkown resource' do
-          let(:block) do
-            proc do
-              remove_resource :factories
-            end
-          end
+          let(:block) { proc { remove_resource :factories } }
 
           it 'raises an error' do
             expect { subject }.to raise_error(Cathode::UnknownResourceError)
@@ -185,11 +212,7 @@ describe Cathode::Version do
             end
           end
 
-          let(:block) do
-            proc do
-              remove_resources [:sales, :products]
-            end
-          end
+          let(:block) { proc { remove_resources [:sales, :products] } }
 
           it 'does not use the resource' do
             expect(subject.resources.names).to be_empty
@@ -198,45 +221,94 @@ describe Cathode::Version do
       end
 
       context 'with a removed action' do
-        context 'with an unkown action' do
-          let(:block) do
-            proc do
-              remove_action :sales, :destroy
+        context 'within a resource' do
+          context 'with an unknown resource' do
+            let(:block) { proc { remove_action :destroy, from: :unknown } }
+
+            it 'raises an error' do
+              expect { subject }.to raise_error(
+                Cathode::UnknownResourceError,
+                "Unknown resource `unknown' on ancestor version 1.0.0"
+              )
             end
           end
 
-          it 'raises an error' do
-            expect { subject }.to raise_error(Cathode::UnknownActionError)
+          context 'with an unkown action' do
+            let(:block) { proc { remove_action :destroy, from: :sales } }
+
+            it 'raises an error' do
+              expect { subject }.to raise_error(
+                Cathode::UnknownActionError,
+                "Unknown action `destroy' on resource `sales'"
+              )
+            end
+          end
+
+          context 'with a single action' do
+            let(:block) do
+              proc do
+                resource :products, actions: [:index]
+                remove_action :index, from: :sales
+              end
+            end
+
+            it 'does not use the action' do
+              subject
+              expect(subject.resources.find(:sales).actions.names).to match_array([:show])
+              expect(subject.resources.find(:products).actions.names).to match_array([:index])
+            end
+          end
+
+          context 'with multiple actions' do
+            let(:block) do
+              proc do
+                resource :products, actions: [:index]
+                remove_actions :index, :show, from: :sales
+              end
+            end
+
+            it 'does not use the actions' do
+              subject
+              expect(subject.resources.find(:sales).actions.names).to match_array([])
+              expect(subject.resources.find(:products).actions.names).to match_array([:index])
+            end
           end
         end
 
-        context 'with a single action' do
-          let(:block) do
-            proc do
-              resource :products, actions: [:index]
-              remove_actions :sales, :index
+        context 'outside of a resource' do
+          before do
+            Cathode::Version.new 1.5 do
+              get :custom
+              delete :custom2
+            end
+          end
+          let(:version) { 2 }
+
+          context 'with an unkown action' do
+            let(:block) { proc { remove_action :unknown } }
+
+            it 'raises an error' do
+              expect { subject }.to raise_error(
+                Cathode::UnknownActionError,
+                "Unknown action `unknown' on ancestor version 1.5.0"
+              )
             end
           end
 
-          it 'does not use the action' do
-            subject
-            expect(subject.resources.find(:sales).actions.names).to match_array([:show])
-            expect(subject.resources.find(:products).actions.names).to match_array([:index])
-          end
-        end
+          context 'with a single action' do
+            let(:block) { proc { remove_action :custom } }
 
-        context 'with an array of actions' do
-          let(:block) do
-            proc do
-              resource :products, actions: [:index]
-              remove_actions :sales, [:index, :show]
+            it 'removes the action' do
+              expect(subject.actions.names).to match_array([:status, :custom2])
             end
           end
 
-          it 'does not use the actions' do
-            subject
-            expect(subject.resources.find(:sales).actions.names).to match_array([])
-            expect(subject.resources.find(:products).actions.names).to match_array([:index])
+          context 'with multiple actions' do
+            let(:block) { proc { remove_actions :custom, :custom2 } }
+
+            it 'removes the action' do
+              expect(subject.actions.names).to eq([:status])
+            end
           end
         end
       end

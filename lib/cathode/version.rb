@@ -1,12 +1,27 @@
 require 'semantic'
+require 'deep_clone'
 
 module Cathode
   class Version
+    include ActionDsl
+
     attr_reader :ancestor,
                 :resources,
                 :version
 
     @all = []
+
+    class << self
+      def define(version_number, &block)
+        version = Version.find(version_number)
+        if version.present?
+          version.instance_eval(&block)
+        else
+          version = self.new(version_number, &block)
+        end
+        version
+      end
+    end
 
     def initialize(version_number, &block)
       @version = Semantic::Version.new Version.standardize(version_number)
@@ -15,7 +30,8 @@ module Cathode
 
       if Version.all.present?
         @ancestor = Version.all.last
-        @resources = @ancestor.resources.clone
+        @resources = DeepClone.clone @ancestor.resources
+        actions.add ancestor.actions.objects
       end
 
       instance_eval(&block) if block_given?
@@ -52,7 +68,7 @@ module Cathode
       def find(version_number)
         Version.all.detect { |v| v.version == standardize(version_number) }
       rescue ArgumentError
-        return nil
+        nil
       end
 
       def exists?(version_number)
@@ -62,12 +78,15 @@ module Cathode
 
   private
 
-    def resource(resource, params = nil, &block)
-      if resources.names.include? resource
-      #  fail DuplicateResourceError, "Resource `#{resource}' already defined on version #{version}"
-      end
+    def resource(resource_name, params = nil, &block)
+      existing_resource = resources.find resource_name
+      new_resource = Resource.new(resource_name, params, &block)
 
-      @resources << Resource.new(resource, params, &block)
+      if existing_resource.present?
+        existing_resource.actions.add new_resource.actions.objects
+      else
+        @resources << new_resource
+      end
     end
 
     def remove_resource(resources)
@@ -82,15 +101,31 @@ module Cathode
       end
     end
 
-    def remove_action(resource, actions)
-      actions = [actions] unless actions.is_a?(Array)
+    def remove_action(*args)
+      if args.last.is_a?(Hash)
+        resource_name = args.last[:from]
+        resource = @resources.find(resource_name)
+        actions_to_remove = args.take args.size - 1
 
-      actions.each do |action|
-        if @resources.find(resource).actions.find(action).nil?
-          fail UnknownActionError, "Unknown action `#{action}' on resource `#{resource}'"
+        if resource.nil?
+          fail UnknownResourceError, "Unknown resource `#{resource_name}' on ancestor version #{ancestor.version}"
         end
 
-        @resources.find(resource).actions.delete action
+        actions_to_remove.each do |action|
+          if resource.actions.find(action).nil?
+            fail UnknownActionError, "Unknown action `#{action}' on resource `#{resource_name}'"
+          end
+
+          resource.actions.delete action
+        end
+      else
+        args.each do |action|
+          if actions.find(action).nil?
+            fail UnknownActionError, "Unknown action `#{action}' on ancestor version #{ancestor.version}"
+          end
+
+          actions.delete action
+        end
       end
     end
 

@@ -17,6 +17,12 @@ module Cathode
       objects.map(&:name)
     end
 
+    def add(items)
+      items = [items] unless items.is_a?(Array)
+      self.objects += items
+      self
+    end
+
     def delete(name)
       objects.delete find(name)
       self

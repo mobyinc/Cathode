@@ -7,12 +7,13 @@ require 'cathode/update_request'
 require 'cathode/destroy_request'
 require 'cathode/custom_request'
 require 'cathode/exceptions'
+require 'cathode/object_collection'
+require 'cathode/action_dsl'
 require 'cathode/resource'
 require 'cathode/action'
 require 'cathode/version'
 require 'cathode/railtie'
 require 'cathode/debug'
-require 'cathode/object_collection'
 
 module Cathode
   DEFAULT_ACTIONS = [:index, :show, :create, :update, :destroy]
@@ -32,7 +33,7 @@ module Cathode
       end
 
       def version(version_number, &block)
-        Version.new(version_number, &block)
+        Version.define(version_number, &block)
       end
 
     private

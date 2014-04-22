@@ -49,7 +49,6 @@ module Cathode
 
       @resource = context.params[:controller].camelize.demodulize.downcase.to_sym
 
-      binding.pry
       action_name = params[:action]
       if action_name == 'custom'
         action_name = context.request.path.split('/').last
