@@ -1,21 +1,22 @@
 require 'pry'
-require 'cathode/request'
-require 'cathode/index_request'
-require 'cathode/show_request'
-require 'cathode/create_request'
-require 'cathode/update_request'
-require 'cathode/destroy_request'
-require 'cathode/custom_request'
 require 'cathode/exceptions'
-require 'cathode/object_collection'
-require 'cathode/action_dsl'
-require 'cathode/resource'
-require 'cathode/action'
-require 'cathode/version'
 require 'cathode/railtie'
-require 'cathode/debug'
 
 module Cathode
+  autoload :Action,             'cathode/action'
+  autoload :ActionDsl,          'cathode/action_dsl'
+  autoload :CreateRequest,      'cathode/create_request'
+  autoload :CustomRequest,      'cathode/custom_request'
+  autoload :Debug,              'cathode/debug'
+  autoload :DestroyRequest,     'cathode/destroy_request'
+  autoload :IndexRequest,       'cathode/index_request'
+  autoload :ObjectCollection,   'cathode/object_collection'
+  autoload :Request,            'cathode/request'
+  autoload :Resource,           'cathode/resource'
+  autoload :ShowRequest,        'cathode/show_request'
+  autoload :UpdateRequest,      'cathode/update_request'
+  autoload :Version,            'cathode/version'
+
   DEFAULT_ACTIONS = [:index, :show, :create, :update, :destroy]
 
   class Base
