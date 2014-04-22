@@ -3,11 +3,14 @@ module Cathode
     class << self
       def info
         output = ''
-        Cathode::Base.versions.each do |version_number, version|
-          output += "Version #{version_number}"
+        Cathode::Base.versions.each do |version|
+          output += "\nVersion #{version.version}"
 
-          version.resources.each do |resource_name, resource|
-            output += "\n\t#{resource_name}"
+          version.resources.each do |resource|
+            output += "\n  #{resource.name}/"
+            resource.actions.each do |action|
+              output += "\n    #{action.name}"
+            end
           end
         end
 

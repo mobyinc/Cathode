@@ -6,24 +6,25 @@ module Cathode
                 :resources,
                 :version
 
-    @all = {}
+    @all = []
 
     def initialize(version_number, &block)
       @version = Semantic::Version.new Version.standardize(version_number)
-      @resources = {}
+
+      @resources = ObjectCollection.new
 
       if Version.all.present?
-        @ancestor = Version.all.values.last
+        @ancestor = Version.all.last
         @resources = @ancestor.resources.clone
       end
 
       instance_eval(&block) if block_given?
 
-      Version.all[@version.to_s] = self
+      Version.all << self
     end
 
     def resource?(resource)
-      @resources.include? resource.to_sym
+      @resources.names.include? resource.to_sym
     end
 
     def action?(resource, action)
@@ -32,7 +33,7 @@ module Cathode
 
       return false unless resource?(resource)
 
-      @resources[resource].actions.include? action
+      @resources.find(resource).actions.names.include? action
     end
 
     class << self
@@ -49,7 +50,9 @@ module Cathode
       end
 
       def find(version_number)
-        Version.all[standardize(version_number)]
+        Version.all.detect { |v| v.version == standardize(version_number) }
+      rescue ArgumentError
+        return nil
       end
 
       def exists?(version_number)
@@ -60,14 +63,18 @@ module Cathode
   private
 
     def resource(resource, params = nil, &block)
-      @resources[resource] = Resource.new(resource, params, &block)
+      if resources.names.include? resource
+      #  fail DuplicateResourceError, "Resource `#{resource}' already defined on version #{version}"
+      end
+
+      @resources << Resource.new(resource, params, &block)
     end
 
     def remove_resource(resources)
       resources = [resources] unless resources.is_a?(Array)
 
       resources.each do |resource|
-        if @resources[resource].nil?
+        if @resources.find(resource).nil?
           fail UnknownResourceError, "Unknown resource `#{resource}'"
         end
 
@@ -79,11 +86,11 @@ module Cathode
       actions = [actions] unless actions.is_a?(Array)
 
       actions.each do |action|
-        if @resources[resource].actions[action].nil?
+        if @resources.find(resource).actions.find(action).nil?
           fail UnknownActionError, "Unknown action `#{action}' on resource `#{resource}'"
         end
 
-        @resources[resource].actions.delete action
+        @resources.find(resource).actions.delete action
       end
     end
 

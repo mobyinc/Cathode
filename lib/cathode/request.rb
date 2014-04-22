@@ -49,6 +49,7 @@ module Cathode
 
       @resource = context.params[:controller].camelize.demodulize.downcase.to_sym
 
+      binding.pry
       action_name = params[:action]
       if action_name == 'custom'
         action_name = context.request.path.split('/').last
@@ -59,7 +60,7 @@ module Cathode
         return self
       end
 
-      @action = version.resources[resource].actions[action_name.to_sym]
+      @action = version.resources.find(resource).actions.find(action_name.to_sym)
       @strong_params = @action.strong_params
       @_status = :ok
 

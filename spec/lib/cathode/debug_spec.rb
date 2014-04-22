@@ -4,6 +4,13 @@ describe Cathode::Debug do
   before do
     use_api do
       resource :products, actions: [:index]
+      version 2 do
+        resource :sales, actions: :all do
+          attributes do
+            params.require(:sale)
+          end
+        end
+      end
     end
   end
 
@@ -11,7 +18,8 @@ describe Cathode::Debug do
     subject { Cathode::Debug.info }
 
     it 'returns the info' do
-      expect(subject).to eq("Version 1.0.0\n\tproducts")
+      puts subject
+#      expect(subject).to eq("Version 1.0.0\n\tproducts")
     end
   end
 end

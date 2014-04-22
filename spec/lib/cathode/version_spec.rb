@@ -106,6 +106,22 @@ describe Cathode::Version do
       end
     end
 
+    context 'with duplicate resource' do
+      let(:block) do
+        proc do
+          resource :products, actions: [:index]
+          resource :products, actions: [:create]
+        end
+      end
+
+      it 'raises an error' do
+        expect { subject }.to raise_error(
+          Cathode::DuplicateResourceError,
+          "Resource `products' already defined on version 1.0.0"
+        )
+      end
+    end
+
     context 'with inherited version' do
       before do
         Cathode::Version.new 1 do
@@ -115,6 +131,15 @@ describe Cathode::Version do
 
       let(:version) { 1.5 }
 
+      context 'with a new action' do
+        let(:block) { proc { resource :sales { action :destroy } } }
+
+        it 'inherits the resources from the previous version' do
+          expect(subject.resources.names).to match_array([:sales])
+          expect(subject.resources.find(:sales).actions.names).to match_array([:index, :show, :destroy])
+        end
+      end
+
       context 'with an additional resource' do
         let(:block) do
           proc do
@@ -123,7 +148,7 @@ describe Cathode::Version do
         end
 
         it 'inherits the resources from the previous version' do
-          expect(subject.resources.keys).to match_array([:products, :sales])
+          expect(subject.resources.names).to match_array([:products, :sales])
         end
       end
 
@@ -149,7 +174,7 @@ describe Cathode::Version do
           end
 
           it 'does not use the resource' do
-            expect(subject.resources.keys).to match_array([:products])
+            expect(subject.resources.names).to match_array([:products])
           end
         end
 
@@ -167,7 +192,7 @@ describe Cathode::Version do
           end
 
           it 'does not use the resource' do
-            expect(subject.resources.keys).to be_empty
+            expect(subject.resources.names).to be_empty
           end
         end
       end
@@ -195,8 +220,8 @@ describe Cathode::Version do
 
           it 'does not use the action' do
             subject
-            expect(subject.resources[:sales].actions.keys).to match_array([:show])
-            expect(subject.resources[:products].actions.keys).to match_array([:index])
+            expect(subject.resources.find(:sales).actions.names).to match_array([:show])
+            expect(subject.resources.find(:products).actions.names).to match_array([:index])
           end
         end
 
@@ -210,10 +235,46 @@ describe Cathode::Version do
 
           it 'does not use the actions' do
             subject
-            expect(subject.resources[:sales].actions.keys).to match_array([])
-            expect(subject.resources[:products].actions.keys).to match_array([:index])
+            expect(subject.resources.find(:sales).actions.names).to match_array([])
+            expect(subject.resources.find(:products).actions.names).to match_array([:index])
           end
         end
+      end
+    end
+  end
+
+  describe '.find' do
+    subject { Cathode::Version.find(version_number) }
+    before do
+      use_api do
+        resource :products
+        version 1.5 do
+          resource :sales
+        end
+      end
+    end
+
+    context 'with a valid SemVer number' do
+      let(:version_number) { '1.5.0' }
+
+      it 'returns the version matching the version number' do
+        expect(subject.version).to eq('1.5.0')
+      end
+    end
+
+    context 'with a non-standard SemVer number' do
+      let(:version_number) { '1.5' }
+
+      it 'returns the version matching the standardized number' do
+        expect(subject.version).to eq('1.5.0')
+      end
+    end
+
+    context 'with an invalid SemVer number' do
+      let(:version_number) { '1.x' }
+
+      it 'returns nil' do
+        expect(subject).to be_nil
       end
     end
   end

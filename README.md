@@ -17,6 +17,7 @@ resourceful applications.
 * Custom (non-resourceful) actions on versions and resources
 
 ## Roadmap
+* Nested resources
 * Pre-defined subactions on :index (paging, cursoring, etc)
 * Real authentication – perhaps integrate w/ CanCan or similar?
 * Deprecation messages

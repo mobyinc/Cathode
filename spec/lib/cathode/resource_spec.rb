@@ -41,7 +41,7 @@ describe Cathode::Resource do
         let(:actions) { [:create] }
 
         it 'sets the strong params of the action' do
-          expect(subject.actions[:create].strong_params).to_not be_nil
+          expect(subject.actions.find(:create).strong_params).to_not be_nil
         end
       end
 
@@ -49,7 +49,7 @@ describe Cathode::Resource do
         let(:actions) { [:update] }
 
         it 'sets the strong params of the action' do
-          expect(subject.actions[:update].strong_params).to_not be_nil
+          expect(subject.actions.find(:update).strong_params).to_not be_nil
         end
       end
 
@@ -57,8 +57,8 @@ describe Cathode::Resource do
         let(:actions) { :all }
 
         it 'sets the strong params of both actions' do
-          expect(subject.actions[:create].strong_params).to_not be_nil
-          expect(subject.actions[:update].strong_params).to_not be_nil
+          expect(subject.actions.find(:create).strong_params).to_not be_nil
+          expect(subject.actions.find(:update).strong_params).to_not be_nil
         end
       end
 
@@ -75,7 +75,7 @@ describe Cathode::Resource do
       subject { Cathode::Resource.new(:products, nil) { get :custom } }
 
       it 'sets up the action' do
-        expect(subject.actions[:custom].http_method).to eq(:get)
+        expect(subject.actions.find(:custom).http_method).to eq(:get)
       end
     end
   end
@@ -93,7 +93,7 @@ describe Cathode::Resource do
       subject { resource.default_actions }
 
       it 'returns the default actions' do
-        expect(subject.keys).to match_array([:index, :show, :create, :update, :destroy])
+        expect(subject.map(&:name)).to match_array([:index, :show, :create, :update, :destroy])
       end
     end
 
@@ -101,7 +101,7 @@ describe Cathode::Resource do
       subject { resource.custom_actions }
 
       it 'returns the custom actions' do
-        expect(subject.keys).to match_array([:custom, :custom2])
+        expect(subject.map(&:name)).to match_array([:custom, :custom2])
       end
     end
   end

@@ -6,4 +6,6 @@ module Cathode
   class UnknownAttributesError < NameError; end
 
   class RequestMethodMissingError < NameError; end
+
+  class DuplicateResourceError < RuntimeError; end
 end

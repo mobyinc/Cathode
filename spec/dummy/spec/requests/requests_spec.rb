@@ -143,25 +143,7 @@ describe 'API' do
     let!(:product) { create :product }
 
     it 'inherits from previous versions' do
-      make_request :get, 'api/products', nil, '1.0'
-      expect(response.status).to eq(200)
-
-      make_request :get, 'api/products/1', nil, '1.0'
-      expect(response.status).to eq(200)
-
-      make_request :get, 'api/sales', nil, '1.0'
-      expect(response.status).to eq(404)
-
       make_request :get, 'api/sales', nil, '1.0.1'
-      expect(response.status).to eq(200)
-
-      make_request :get, 'api/sales', nil, '1.1.0'
-      expect(response.status).to eq(404)
-
-      make_request :get, 'api/products/1', nil, '1.1.0'
-      expect(response.status).to eq(404)
-
-      make_request :get, 'api/products', nil, '1.1.0'
       expect(response.status).to eq(200)
     end
   end

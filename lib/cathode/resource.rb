@@ -1,7 +1,5 @@
 module Cathode
   class Resource
-    DEFAULT_ACTIONS = [:index, :show, :create, :update, :destroy]
-
     attr_reader :actions,
                 :name
 
@@ -17,30 +15,30 @@ module Cathode
         Cathode.const_set controller_name, Class.new(Cathode::BaseController)
       end
 
-      @actions = {}
+      @actions = ObjectCollection.new
       actions_to_add = params[:actions] == :all ? DEFAULT_ACTIONS : params[:actions]
       actions_to_add.each do |action_name|
         action action_name
       end
       instance_eval(&block) if block_given?
 
-      @actions.each do |action_name, action|
+      @actions.each do |action|
         action.after_resource_initialized if action.respond_to? :after_resource_initialized
       end
     end
 
     def default_actions
-      actions.select { |key, val| DEFAULT_ACTIONS.include? key }
+      actions.select { |action| DEFAULT_ACTIONS.include? action.name }
     end
 
     def custom_actions
-      actions.select { |key, val| !DEFAULT_ACTIONS.include?(key) }
+      actions - default_actions
     end
 
   private
 
     def action(action, params = {}, &block)
-      @actions[action] = Action.create(action, @name, params, &block)
+      @actions << Action.create(action, @name, params, &block)
     end
 
     def get(action_name, &block)
@@ -60,12 +58,15 @@ module Cathode
     end
 
     def attributes(&block)
-      unless @actions[:create] || @actions[:update]
+      create_action = @actions.find(:create)
+      update_action = @actions.find(:update)
+
+      unless create_action || update_action
         fail UnknownActionError, 'An attributes block was specified without a :create or :update action'
       end
 
-      @actions[:create].strong_params = block if @actions[:create].present?
-      @actions[:update].strong_params = block if @actions[:update].present?
+      create_action.strong_params = block if create_action.present?
+      update_action.strong_params = block if update_action.present?
     end
 
     def replace_action(action_name, &block)

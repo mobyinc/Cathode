@@ -12,8 +12,11 @@ require 'cathode/action'
 require 'cathode/version'
 require 'cathode/railtie'
 require 'cathode/debug'
+require 'cathode/object_collection'
 
 module Cathode
+  DEFAULT_ACTIONS = [:index, :show, :create, :update, :destroy]
+
   class Base
     class << self
       def reset!
