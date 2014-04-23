@@ -18,10 +18,17 @@ resourceful applications.
 * Nested resources
 
 ## Roadmap
+* Finish associations for nested resources and raise errors at API definition
+  time, not runtime
+* Singular resources
 * Pre-defined subactions on :index (paging, cursoring, etc)
 * Real authentication – perhaps integrate w/ CanCan or similar?
 * Deprecation messages
 * Auto-documentation / changelog
+* Travis CI
+* Test coverage
+* Code Climate
+* Support for Rails 3.2 + StrongParams gem
 
 ## Getting Started
 Install the gem:
@@ -229,7 +236,8 @@ end
 ## Custom Actions & Non-resourceful Endpoints
 Your API is bound to need actions that don’t map to standard CRUD operations,
 and Cathode makes this easy to do. You can define your own actions at both the
-version level and the resource level.
+version level and the resource level by using the `get`, `post`, `put`, and
+`destroy` methods.
 
 Use the `body` and `status` methods to set the response body and HTTP status.
 Both of these methods take either a single argument, or a block that will be
@@ -238,14 +246,14 @@ evaluated to determine the value. Choose whichever works best in your situation.
 ```ruby
 Cathode::Base.version 1 do
   # sending a different body but the same status
-  action :status do
+  get :status do
     body { API.alive? ? 'Everything running smoothly' : 'Something has gone wrong' }
     status :ok # not really necessary, since `:ok` is the default
   end
 
   # sending different body/status depending on the result of a condition
   resources :users do
-    action :password_reset_code do
+    get :password_reset_code do
       user = User.find(params[:id])
       if user.present?
         body user.password_reset_code
