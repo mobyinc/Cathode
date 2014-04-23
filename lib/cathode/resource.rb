@@ -3,16 +3,24 @@ module Cathode
     include ActionDsl
     include ResourceDsl
 
-    attr_reader :name
+    attr_reader :name,
+                :controller_prefix,
+                :model
 
-    def initialize(resource_name, params = nil, &block)
+    def initialize(resource_name, params = nil, context = nil, &block)
       require_resource_constant! resource_name
 
       params ||= { actions: [] }
 
       @name = resource_name
 
-      controller_name = "#{resource_name.to_s.camelize}Controller"
+      camelized_resource = resource_name.to_s.camelize
+      @controller_prefix = if context.present? && context.respond_to?(:controller_prefix)
+                             "#{context.controller_prefix}#{camelized_resource}"
+                           else
+                             camelized_resource
+                           end
+      controller_name = "#{@controller_prefix}Controller"
       unless Cathode.const_defined? controller_name
         Cathode.const_set controller_name, Class.new(Cathode::BaseController)
       end
@@ -32,8 +40,10 @@ module Cathode
   private
 
     def require_resource_constant!(resource_name)
-      if resource_name.to_s.singularize.camelize.safe_constantize.nil?
-        fail UnknownResourceError
+      constant = resource_name.to_s.singularize.camelize
+      @model = constant.safe_constantize
+      if @model.nil?
+        fail UnknownResourceError, "Could not find constant `#{constant}' for resource `#{resource_name}'"
       end
     end
   end

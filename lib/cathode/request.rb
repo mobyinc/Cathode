@@ -47,19 +47,33 @@ module Cathode
         return self
       end
 
-      @resource = context.params[:controller].camelize.demodulize.downcase.to_sym
-
       action_name = params[:action]
       if action_name == 'custom'
         action_name = context.request.path.split('/').last
       end
 
-      unless version.action?(resource, action_name)
-        @_status = :not_found
-        return self
+      params[:controller].slice! 'cathode/'
+      resources = params[:controller].split('_').map(&:to_sym)
+      resource = version.resources.find(resources.first)
+      @resource_tree = [resource]
+      subresources = resources.drop(1).collect do |r|
+        resource = resource.resources.find(r)
+      end
+      @resource_tree += subresources
+      resource = @resource_tree.last
+
+      @resource = resource
+
+      if @resource_tree.size > 1
+        @action = resource.actions.find(action_name.to_sym)
+      else
+        unless version.action?(resource.try(:name) || '', action_name)
+          @_status = :not_found
+          return self
+        end
+        @action = version.resources.find(resource.name).actions.find(action_name.to_sym)
       end
 
-      @action = version.resources.find(resource).actions.find(action_name.to_sym)
       @strong_params = @action.strong_params
       @_status = :ok
 
@@ -80,7 +94,7 @@ module Cathode
   private
 
     def model
-      resource.to_s.camelize.singularize.constantize
+      resource.model
     end
 
     def body(value = Hash.new, &block)

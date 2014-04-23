@@ -15,9 +15,9 @@ resourceful applications.
 * Endpoints respond to JSON and output JSON by default (possibly add XML et al later on?)
 * Versioning of endpoints
 * Custom (non-resourceful) actions on versions and resources
+* Nested resources
 
 ## Roadmap
-* Nested resources
 * Pre-defined subactions on :index (paging, cursoring, etc)
 * Real authentication – perhaps integrate w/ CanCan or similar?
 * Deprecation messages
@@ -148,6 +148,29 @@ and groups of controllers. With Cathode, these are all taken care of for you.
 Note that, while these examples are using minor- and patch-level versions, you
 are not required to do so. You can use only major versions (x.0.0), major and
 minor versions (x.y.0), or all three (x.y.z).
+
+## Nested Resources
+Resources can be nested arbitrarily deep inside other resources. When resources
+are nested, Cathode uses your models’ associations to determine the default action
+behavior. For example, with the following setup, all of a product’s sales would
+be returned by the `api/products/{product_id}/sales` endpoint.
+
+```ruby
+# app/api/api.rb
+resource :products do
+  resource :sales, actions: [:index]
+end
+
+# app/models/product.rb
+class Product < ActiveRecord::Base
+  has_many :sales
+end
+
+# app/models/sale.rb
+class Sale < ActiveRecord::Base
+  belongs_to :product
+end
+```
 
 ## Goodies on the `index` action
 By default `index` actions return all records in your resource’s default scope.

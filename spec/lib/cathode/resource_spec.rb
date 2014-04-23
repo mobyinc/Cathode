@@ -6,7 +6,10 @@ describe Cathode::Resource do
       subject { Cathode::Resource.new(:boxes, :all) }
 
       it 'raises an error' do
-        expect { subject }.to raise_error(Cathode::UnknownResourceError)
+        expect { subject }.to raise_error(
+          Cathode::UnknownResourceError,
+          "Could not find constant `Box' for resource `boxes'"
+        )
       end
     end
 
@@ -68,6 +71,19 @@ describe Cathode::Resource do
         it 'raises an error' do
           expect { subject }.to raise_error(Cathode::UnknownActionError, 'An attributes block was specified without a :create or :update action')
         end
+      end
+    end
+
+    context 'with a nested resource' do
+      subject do
+        Cathode::Resource.new(:products) do
+          resource :sales, actions: [:index, :show]
+        end
+      end
+
+      it 'adds the resource' do
+        expect(subject.resources.names).to match_array([:sales])
+        expect(subject.resources.find(:sales).actions.names).to match_array([:index, :show])
       end
     end
 

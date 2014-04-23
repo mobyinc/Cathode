@@ -1,8 +1,21 @@
 module Cathode
   class IndexRequest < Request
+    def model
+      if @resource_tree.size > 1
+        parent_model_id = params["#{@resource_tree.first.name.to_s.singularize}_id"]
+        model = @resource_tree.first.model.find(parent_model_id)
+        @resource_tree.drop(1).each do |resource|
+          model = model.send resource.name
+        end
+        model
+      else
+        super.all
+      end
+    end
+
     def default_action_block
       proc do
-        all_records = model.all
+        all_records = model
 
         if allowed?(:paging) && params[:page]
           page = params[:page]

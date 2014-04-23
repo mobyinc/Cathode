@@ -9,7 +9,7 @@ module Cathode
 
     def resource(resource_name, params = nil, &block)
       existing_resource = resources.find resource_name
-      new_resource = Resource.new(resource_name, params, &block)
+      new_resource = Resource.new(resource_name, params, self, &block)
 
       if existing_resource.present?
         existing_resource.actions.add new_resource.actions.objects

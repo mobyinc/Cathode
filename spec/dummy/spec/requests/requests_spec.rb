@@ -240,6 +240,25 @@ describe 'API' do
     end
   end
 
+  context 'with nested resources' do
+    before do
+      use_api do
+        resource :products do
+          resource :sales, actions: [:index]
+        end
+      end
+    end
+    let!(:product) { create(:product) }
+    let!(:salesperson) { create(:salesperson) }
+    let!(:sale) { create(:sale, product: product, salesperson: salesperson) }
+
+    it 'uses the associations to get the records' do
+      make_request :get, 'api/products/1/sales'
+      expect(response.status).to eq(200)
+      expect(response.body).to eq(Sale.all.to_json)
+    end
+  end
+
   context 'with a custom action' do
     before do
       use_api do
