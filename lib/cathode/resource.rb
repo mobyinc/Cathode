@@ -1,6 +1,7 @@
 module Cathode
   class Resource
     include ActionDsl
+    include ResourceDsl
 
     attr_reader :name
 

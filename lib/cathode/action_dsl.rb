@@ -1,8 +1,18 @@
 module Cathode
   module ActionDsl
+    def default_actions
+      actions.select { |action| DEFAULT_ACTIONS.include? action.name }
+    end
+
+    def custom_actions
+      actions - default_actions
+    end
+
     def actions
       @actions ||= ObjectCollection.new
     end
+
+  protected
 
     def action(action, params = {}, &block)
       actions << Action.create(action, @name, params, &block)
@@ -32,14 +42,6 @@ module Cathode
 
     def override_action(action_name, params = {}, &block)
       action action_name, params.merge(override: true), &block
-    end
-
-    def default_actions
-      actions.select { |action| DEFAULT_ACTIONS.include? action.name }
-    end
-
-    def custom_actions
-      actions - default_actions
     end
 
     def attributes(&block)
