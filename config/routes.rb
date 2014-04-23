@@ -4,14 +4,14 @@ def attach_resources(resources)
       resource.custom_actions.each do |action|
         match action.name => action.name, action: 'custom', via: action.http_method
       end
-      attach_resources(resource.resources)
+      attach_resources(resource._resources)
     end
   end
 end
 
 Cathode::Engine.routes.draw do
   Cathode::Base.versions.each do |version|
-    attach_resources(version.resources)
+    attach_resources(version._resources)
   end
   match '*path' => 'base#custom', via: [:get, :post, :put, :delete]
 end

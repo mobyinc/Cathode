@@ -6,7 +6,7 @@ describe Cathode::DestroyRequest do
   end
   before do
     use_api do
-      resource :products, actions: [:destroy]
+      resources :products, actions: [:destroy]
     end
   end
 

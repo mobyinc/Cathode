@@ -54,10 +54,10 @@ module Cathode
 
       params[:controller].slice! 'cathode/'
       resources = params[:controller].split('_').map(&:to_sym)
-      resource = version.resources.find(resources.first)
+      resource = version._resources.find(resources.first)
       @resource_tree = [resource]
       subresources = resources.drop(1).collect do |r|
-        resource = resource.resources.find(r)
+        resource = resource._resources.find(r)
       end
       @resource_tree += subresources
       resource = @resource_tree.last
@@ -71,7 +71,7 @@ module Cathode
           @_status = :not_found
           return self
         end
-        @action = version.resources.find(resource.name).actions.find(action_name.to_sym)
+        @action = version._resources.find(resource.name).actions.find(action_name.to_sym)
       end
 
       @strong_params = @action.strong_params

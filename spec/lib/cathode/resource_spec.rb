@@ -77,13 +77,13 @@ describe Cathode::Resource do
     context 'with a nested resource' do
       subject do
         Cathode::Resource.new(:products) do
-          resource :sales, actions: [:index, :show]
+          resources :sales, actions: [:index, :show]
         end
       end
 
       it 'adds the resource' do
-        expect(subject.resources.names).to match_array([:sales])
-        expect(subject.resources.find(:sales).actions.names).to match_array([:index, :show])
+        expect(subject._resources.names).to match_array([:sales])
+        expect(subject._resources.find(:sales).actions.names).to match_array([:index, :show])
       end
     end
 

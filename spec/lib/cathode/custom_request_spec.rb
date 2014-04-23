@@ -10,7 +10,7 @@ describe Cathode::CustomRequest do
 
   before do
     use_api do
-      resource :products do
+      resources :products do
         get :custom do
           body Product.last
         end

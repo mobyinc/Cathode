@@ -6,7 +6,7 @@ describe Cathode::UpdateRequest do
   end
   before do
     use_api do
-      resource :products, actions: [:update] do
+      resources :products, actions: [:update] do
         attributes do
           params.require(:product).permit(:title)
         end

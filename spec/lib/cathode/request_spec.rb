@@ -11,7 +11,7 @@ describe Cathode::Request do
     end
 
     before do
-      use_api { resource :products, actions: [:index] }
+      use_api { resources :products, actions: [:index] }
     end
 
     context 'without a version header' do

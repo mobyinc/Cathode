@@ -34,7 +34,7 @@ describe 'API' do
   context 'with no explicit version' do
     before(:all) do
       use_api do
-        resource :products, actions: [:index]
+        resources :products, actions: [:index]
       end
     end
 
@@ -50,12 +50,12 @@ describe 'API' do
     before do
       use_api do
         version 1.5 do
-          resource :products, actions: :all do
+          resources :products, actions: :all do
             attributes do
               params.require(:product).permit(:title, :cost)
             end
           end
-          resource :sales, actions: [:index, :show]
+          resources :sales, actions: [:index, :show]
         end
       end
     end
@@ -129,13 +129,13 @@ describe 'API' do
   context 'with cascading versions' do
     before(:each) do
       use_api do
-        resource :products, actions: [:index, :show]
+        resources :products, actions: [:index, :show]
         version '1.0.1' do
-          resource :sales, actions: [:index, :show]
+          resources :sales, actions: [:index, :show]
         end
         version 1.1 do
-          remove_resource :sales
-          resource :products, actions: [:index]
+          remove_resources :sales
+          resources :products, actions: [:index]
         end
       end
     end
@@ -169,7 +169,7 @@ describe 'API' do
   context 'with action replacing' do
     before do
       use_api do
-        resource :products do
+        resources :products do
           action :show do
             replace do
               body Product.last
@@ -206,7 +206,7 @@ describe 'API' do
   context 'with action overriding' do
     before do
       use_api do
-        resource :products do
+        resources :products do
           action :show do
             override do
               render json: Product.last
@@ -243,8 +243,8 @@ describe 'API' do
   context 'with nested resources' do
     before do
       use_api do
-        resource :products do
-          resource :sales, actions: [:index]
+        resources :products do
+          resources :sales, actions: [:index]
         end
       end
     end
@@ -262,7 +262,7 @@ describe 'API' do
   context 'with a custom action' do
     before do
       use_api do
-        resource :products do
+        resources :products do
           override_action :custom_override, method: :get do
             render json: Product.last
           end

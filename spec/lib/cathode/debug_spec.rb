@@ -3,9 +3,9 @@ require 'spec_helper'
 describe Cathode::Debug do
   before do
     use_api do
-      resource :products, actions: [:index]
+      resources :products, actions: [:index]
       version 2 do
-        resource :sales, actions: :all do
+        resources :sales, actions: :all do
           attributes do
             params.require(:sale)
           end

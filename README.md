@@ -42,10 +42,10 @@ resources inside of them.
 ```ruby
 Cathode::Base.define do
   # version 1.0.0 is implied if no version block is given
-  resource :products, actions: [:index, :show, :search]
+  resources :products, actions: [:index, :show, :search]
 
   version '1.0.1' do
-    resource :sales, actions: [:index, :show]
+    resources :sales, actions: [:index, :show]
   end
 end
 ```
@@ -74,14 +74,14 @@ would in a controller.
 
 ```ruby
 # use the same attribute whitelist for `create` and `update`
-resource :products, actions: [:create, :update] do
+resources :products, actions: [:create, :update] do
   attributes do |params|
     params.require(:product).permit(:title, :description, :cost)
   end
 end
 
 # use different attribute whitelists for `create` and `update`
-resource :products do
+resources :products do
   action :create do
     attributes do |params|
       params.require(:product).permit(:title, :description, :cost)
@@ -116,10 +116,10 @@ If you define resources without a version, Cathode assumes it’s version
 easily provision a new version:
 
 ```ruby
-resource :products, actions: [:index, :show, :search]
+resources :products, actions: [:index, :show, :search]
 
 version 1.1 do
-  resource :sales, actions: [:index]
+  resources :sales, actions: [:index]
   # the products resource is inherited from version 1
 end
 
@@ -157,8 +157,8 @@ be returned by the `api/products/{product_id}/sales` endpoint.
 
 ```ruby
 # app/api/api.rb
-resource :products do
-  resource :sales, actions: [:index]
+resources :products do
+  resources :sales, actions: [:index]
 end
 
 # app/models/product.rb
@@ -186,7 +186,7 @@ To add support for this functionality in Cathode, just flip on querying, sorting
 and paging in the `index` action:
 
 ```ruby
-resource :products do
+resources :products do
   action :index do
     allows :querying, :sorting, :paging
   end
@@ -211,7 +211,7 @@ There are two ways to supply your own behavior:
     resource level. Prefer `replace` over `override`.
 
 ```ruby
-resource :sales, actions: :all do
+resources :sales, actions: :all do
   override_action :show do
     render json: Sale.sample
   end
@@ -219,7 +219,7 @@ end
 ```
 
 ```ruby
-resource :sales, actions: :all do
+resources :sales, actions: :all do
   replace_action :show do
     body Sale.sample
   end
@@ -244,7 +244,7 @@ Cathode::Base.version 1 do
   end
 
   # sending different body/status depending on the result of a condition
-  resource :users do
+  resources :users do
     action :password_reset_code do
       user = User.find(params[:id])
       if user.present?
@@ -295,15 +295,15 @@ them all in a single file:
 
 Cathode::Base.define do
   version 1 do
-    resource :products, actions: :all
+    resources :products, actions: :all
   end
 
   version 2 do
-    resource :products do
+    resources :products do
       remove_action :delete
     end
 
-    resource :sales, actions: [:index]
+    resources :sales, actions: [:index]
   end
 end
 ```
@@ -319,16 +319,16 @@ api/
 ```ruby
 # api/v1.rb
 Cathode::Base.version 1 do
-  resource :products, actions: [:index, :show, :delete]
+  resources :products, actions: [:index, :show, :delete]
 end
 
 # api/v2.rb
 Cathode::Base.version 2 do
-  resource :products do
+  resources :products do
     remove_action :delete
   end
 
-  resource :sales, actions: [:index]
+  resources :sales, actions: [:index]
 end
 ```
 
@@ -347,19 +347,19 @@ api/
 ```ruby
 # api/v1/products.rb
 Cathode::Base.version 1 do
-  resource :products, actions: [:index, :show, :delete]
+  resources :products, actions: [:index, :show, :delete]
 end
 
 # api/v2/products.rb
 Cathode::Base.version 2 do
-  resource :products do
+  resources :products do
     remove_action :delete
   end
 end
 
 # api/v2/sales.rb
 Cathode::Base.version 2 do
-  resource :sales, actions: [:index]
+  resources :sales, actions: [:index]
 end
 ```
 

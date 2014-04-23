@@ -6,7 +6,7 @@ describe Cathode::CreateRequest do
   end
   before do
     use_api do
-      resource :products, actions: [:create] do
+      resources :products, actions: [:create] do
         attributes do
           params.require(:product).permit(:title)
         end

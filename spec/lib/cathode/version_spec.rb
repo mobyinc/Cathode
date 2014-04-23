@@ -38,23 +38,23 @@ describe Cathode::Version do
   end
 
   describe '.define' do
-    subject { Cathode::Version.define('1.0.0') { resource :sales } }
+    subject { Cathode::Version.define('1.0.0') { resources :sales } }
 
     context 'when version already exists' do
       before do
         use_api do
-          resource :products, actions: [:index]
+          resources :products, actions: [:index]
         end
       end
 
       it 'adds to the version' do
-        expect(subject.resources.names).to match_array([:products, :sales])
+        expect(subject._resources.names).to match_array([:products, :sales])
       end
     end
 
     context 'when version does not exist' do
       it 'creates a new version' do
-        expect(subject.resources.names).to match_array([:sales])
+        expect(subject._resources.names).to match_array([:sales])
       end
     end
   end
@@ -78,7 +78,7 @@ describe Cathode::Version do
     context 'with no params or block' do
       let(:block) do
         proc do
-          resource :products
+          resources :products
         end
       end
 
@@ -95,7 +95,7 @@ describe Cathode::Version do
     context 'with params' do
       let(:block) do
         proc do
-          resource :sales, actions: [:index, :create]
+          resources :sales, actions: [:index, :create]
         end
       end
 
@@ -113,14 +113,14 @@ describe Cathode::Version do
       let(:block) do
         proc do
           get :custom
-          resource :sales, actions: [:index] do
+          resources :sales, actions: [:index] do
             action :show
           end
         end
       end
 
       it 'creates the resource' do
-        expect(subject.resources.names).to match_array([:sales])
+        expect(subject._resources.names).to match_array([:sales])
       end
 
       it 'creates the action' do
@@ -131,21 +131,21 @@ describe Cathode::Version do
     context 'with duplicate resource' do
       let(:block) do
         proc do
-          resource :products, actions: [:index]
-          resource :products, actions: [:show]
+          resources :products, actions: [:index]
+          resources :products, actions: [:show]
         end
       end
 
       it 'combines the actions' do
-        expect(subject.resources.names).to match_array([:products])
-        expect(subject.resources.find(:products).actions.names).to match_array([:index, :show])
+        expect(subject._resources.names).to match_array([:products])
+        expect(subject._resources.find(:products).actions.names).to match_array([:index, :show])
       end
     end
 
     context 'with inherited version' do
       before do
         Cathode::Version.new 1 do
-          resource :sales, actions: [:index, :show]
+          resources :sales, actions: [:index, :show]
           get :status
         end
       end
@@ -154,38 +154,38 @@ describe Cathode::Version do
       context 'with a new action' do
         let(:block) do
           proc do
-            resource :sales do
+            resources :sales do
               action :destroy
             end
           end
         end
 
         it 'inherits the actions from the previous version' do
-          expect(subject.resources.names).to match_array([:sales])
-          expect(subject.resources.find(:sales).actions.names).to match_array([:index, :show, :destroy])
+          expect(subject._resources.names).to match_array([:sales])
+          expect(subject._resources.find(:sales).actions.names).to match_array([:index, :show, :destroy])
           expect(subject.actions.names).to eq([:status])
         end
 
         it 'leaves the previous version intact' do
           subject
           previous_version = Cathode::Version.find('1.0.0')
-          expect(previous_version.resources.find(:sales).actions.names).to match_array([:index, :show])
+          expect(previous_version._resources.find(:sales).actions.names).to match_array([:index, :show])
         end
       end
 
       context 'with a new resource' do
-        let(:block) { proc { resource :products, actions: [:index] } }
+        let(:block) { proc { resources :products, actions: [:index] } }
 
         it 'inherits the resources from the previous version' do
-          expect(subject.resources.names).to match_array([:products, :sales])
-          expect(subject.resources.find(:sales).actions.names).to match_array([:index, :show])
-          expect(subject.resources.find(:products).actions.names).to match_array([:index])
+          expect(subject._resources.names).to match_array([:products, :sales])
+          expect(subject._resources.find(:sales).actions.names).to match_array([:index, :show])
+          expect(subject._resources.find(:products).actions.names).to match_array([:index])
         end
       end
 
       context 'with a removed resource' do
         context 'with an unkown resource' do
-          let(:block) { proc { remove_resource :factories } }
+          let(:block) { proc { remove_resources :factories } }
 
           it 'raises an error' do
             expect { subject }.to raise_error(Cathode::UnknownResourceError)
@@ -195,27 +195,27 @@ describe Cathode::Version do
         context 'with a single resource' do
           let(:block) do
             proc do
-              resource :products, actions: [:index]
-              remove_resource :sales
+              resources :products, actions: [:index]
+              remove_resources :sales
             end
           end
 
           it 'does not use the resource' do
-            expect(subject.resources.names).to match_array([:products])
+            expect(subject._resources.names).to match_array([:products])
           end
         end
 
         context 'with an array of resources' do
           before do
             Cathode::Version.new 1.2 do
-              resource :products, actions: [:index]
+              resources :products, actions: [:index]
             end
           end
 
           let(:block) { proc { remove_resources [:sales, :products] } }
 
           it 'does not use the resource' do
-            expect(subject.resources.names).to be_empty
+            expect(subject._resources.names).to be_empty
           end
         end
       end
@@ -247,30 +247,30 @@ describe Cathode::Version do
           context 'with a single action' do
             let(:block) do
               proc do
-                resource :products, actions: [:index]
+                resources :products, actions: [:index]
                 remove_action :index, from: :sales
               end
             end
 
             it 'does not use the action' do
               subject
-              expect(subject.resources.find(:sales).actions.names).to match_array([:show])
-              expect(subject.resources.find(:products).actions.names).to match_array([:index])
+              expect(subject._resources.find(:sales).actions.names).to match_array([:show])
+              expect(subject._resources.find(:products).actions.names).to match_array([:index])
             end
           end
 
           context 'with multiple actions' do
             let(:block) do
               proc do
-                resource :products, actions: [:index]
+                resources :products, actions: [:index]
                 remove_actions :index, :show, from: :sales
               end
             end
 
             it 'does not use the actions' do
               subject
-              expect(subject.resources.find(:sales).actions.names).to match_array([])
-              expect(subject.resources.find(:products).actions.names).to match_array([:index])
+              expect(subject._resources.find(:sales).actions.names).to match_array([])
+              expect(subject._resources.find(:products).actions.names).to match_array([:index])
             end
           end
         end
@@ -319,9 +319,9 @@ describe Cathode::Version do
     subject { Cathode::Version.find(version_number) }
     before do
       use_api do
-        resource :products
+        resources :products
         version 1.5 do
-          resource :sales
+          resources :sales
         end
       end
     end
@@ -355,7 +355,7 @@ describe Cathode::Version do
     subject { Cathode::Version.find('1.0.0').resource?(resource) }
     before do
       use_api do
-        resource :products
+        resources :products
       end
     end
 
@@ -380,7 +380,7 @@ describe Cathode::Version do
     subject { Cathode::Version.find('1.0.0').action?(resource, action) }
     before do
       use_api do
-        resource :products, actions: [:index]
+        resources :products, actions: [:index]
       end
     end
 

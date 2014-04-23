@@ -25,7 +25,7 @@ module Cathode
 
       if Version.all.present?
         @ancestor = Version.all.last
-        @resources = DeepClone.clone @ancestor.resources
+        @_resources = DeepClone.clone @ancestor._resources
         actions.add ancestor.actions.objects
       end
 
@@ -35,7 +35,7 @@ module Cathode
     end
 
     def resource?(resource)
-      @resources.names.include? resource.to_sym
+      _resources.names.include? resource.to_sym
     end
 
     def action?(resource, action)
@@ -44,7 +44,7 @@ module Cathode
 
       return false unless resource?(resource)
 
-      @resources.find(resource).actions.names.include? action
+      _resources.find(resource).actions.names.include? action
     end
 
     class << self
@@ -76,7 +76,7 @@ module Cathode
     def remove_action(*args)
       if args.last.is_a?(Hash)
         resource_name = args.last[:from]
-        resource = @resources.find(resource_name)
+        resource = @_resources.find(resource_name)
         actions_to_remove = args.take args.size - 1
 
         if resource.nil?

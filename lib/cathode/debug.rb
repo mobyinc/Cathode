@@ -6,7 +6,7 @@ module Cathode
         Cathode::Base.versions.each do |version|
           output += "\nVersion #{version.version}"
 
-          version.resources.each do |resource|
+          version._resources.each do |resource|
             output += "\n  #{resource.name}/"
             resource.actions.each do |action|
               output += "\n    #{action.name}"

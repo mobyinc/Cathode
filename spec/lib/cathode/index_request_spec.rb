@@ -7,13 +7,13 @@ describe Cathode::IndexRequest do
   let!(:products) { create_list(:product, 5) }
   before do
     use_api do
-      resource :products do
+      resources :products do
         action :index do
           allows :paging
         end
       end
 
-      resource :sales, actions: [:index]
+      resources :sales, actions: [:index]
     end
   end
 

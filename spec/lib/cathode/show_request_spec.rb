@@ -6,7 +6,7 @@ describe Cathode::ShowRequest do
   end
   before do
     use_api do
-      resource :products, actions: [:show]
+      resources :products, actions: [:show]
     end
   end
 

@@ -42,9 +42,9 @@ module Cathode
 
     private
 
-      def resource(resource_name, params = nil, &block)
+      def resources(resource_name, params = nil, &block)
         version 1 do
-          resource resource_name, params, &block
+          resources resource_name, params, &block
         end
       end
     end
