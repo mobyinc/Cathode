@@ -23,6 +23,7 @@ resourceful applications.
 * Singular resources
 * Pre-defined subactions on :index (paging, cursoring, etc)
 * Attributes block on custom actions
+* Auto-loading in Rails w/o hardcoding the api/ dir?
 * Real authentication – perhaps integrate w/ CanCan or similar?
 * Deprecation messages
 * Auto-documentation / changelog
@@ -185,8 +186,8 @@ Here’s how ActiveModel associations map to resourceful endpoints on your API:
 
 Product     | Sale         | Endpoints
 ----------- | ------------ | --------------------
-`has_many`  | `belongs_to` | `products/{id}/sales`
-`has_one`   | `belongs_to` | `products/{id}/sale`
+`has_many`  | `belongs_to` | `products/{id}/sales`, `sales/{id}/product`
+`has_one`   | `belongs_to` | `products/{id}/sale`, `sales/{id}/product`
 `habtm`     | `habtm`      | `products/{id}/sales`, `sales/{id}/products`
 
 When there is exactly one model attached to the first resource (i.e., a
@@ -200,6 +201,9 @@ When there are many models attached to the resource (i.e., a `has_many` or
 actions. With a `has_many` on `Product` and a `belongs_to` on `Sale`, `:index`
 returns all the sales associated with a product, and `:create` adds a new sale
 associated with the product.
+
+For `belongs_to` associations, the `:show` action can be used to return the
+parent model.
 
 ## Goodies on the `index` action
 By default `index` actions return all records in your resource’s default scope.
