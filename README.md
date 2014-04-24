@@ -185,9 +185,9 @@ Here’s how ActiveModel associations map to resourceful endpoints on your API:
 
 Product     | Sale         | Endpoints
 ----------- | ------------ | --------------------
-`has_many`  | `belongs_to` | `GET|POST products/{id}/sales`
-`has_one`   | `belongs_to` | `GET|POST|PUT|DELETE products/{id}/sale`
-`habtm`     | `habtm`      | `GET|POST products/{id}/sales`, `GET|POST sales/{id}/products`
+`has_many`  | `belongs_to` | `products/{id}/sales`
+`has_one`   | `belongs_to` | `products/{id}/sale`
+`habtm`     | `habtm`      | `products/{id}/sales`, `sales/{id}/products`
 
 When there is exactly one model attached to the first resource (i.e., a
 `has_one` association), you can use all the default actions except `:index`, so
