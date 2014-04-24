@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Cathode::Action do
   describe '.create' do
-    subject { Cathode::Action.create(action, :products, try(:params) || {}, &block) }
+    subject { Cathode::Action.create(action, Cathode::Resource.new(:products), try(:params) || {}, &block) }
 
     context 'with a default action' do
       let(:action) { :index }

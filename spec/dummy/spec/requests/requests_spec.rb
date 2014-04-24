@@ -246,16 +246,84 @@ describe 'API' do
         resources :products do
           resources :sales, actions: [:index]
         end
+        resources :sales do
+          resource :payment, actions: [:show, :create, :update, :destroy] do
+            attributes do
+              params.require(:payment).permit(:amount)
+            end
+          end
+        end
+        resources :payments do
+          resource :sale, actions: [:show]
+        end
       end
     end
     let!(:product) { create(:product) }
-    let!(:salesperson) { create(:salesperson) }
-    let!(:sale) { create(:sale, product: product, salesperson: salesperson) }
+    let!(:sale) { create(:sale, product: product) }
 
-    it 'uses the associations to get the records' do
-      make_request :get, 'api/products/1/sales'
-      expect(response.status).to eq(200)
-      expect(response.body).to eq(Sale.all.to_json)
+    context 'with has_many association' do
+      it 'uses the associations to get the records' do
+        make_request :get, 'api/products/1/sales'
+        expect(response.status).to eq(200)
+        expect(response.body).to eq(Sale.all.to_json)
+      end
+    end
+
+    context 'with has_one association' do
+      context ':show' do
+        let!(:payment) { create(:payment, sale: sale) }
+
+        it 'gets the association record' do
+          make_request :get, 'api/sales/1/payment'
+          expect(response.status).to eq(200)
+          expect(response.body).to eq(payment.to_json)
+        end
+      end
+
+      context ':create' do
+        subject { make_request :post, 'api/sales/1/payment', { payment: { amount: 500 } } }
+
+        it 'adds a new record associated with the parent' do
+          expect { subject }.to change(Payment, :count).by(1)
+          expect(Payment.last.sale).to eq(sale)
+          expect(response.status).to eq(200)
+          expect(response.body).to eq(Payment.last.to_json)
+        end
+      end
+
+      context ':update' do
+        let!(:payment) { create(:payment, amount: 200, sale: sale) }
+        subject { make_request :put, 'api/sales/1/payment', { payment: { amount: 500 } } }
+
+        it 'updates the associated record' do
+          expect { subject }.to_not change(Payment, :count).by(1)
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)['amount']).to eq(500)
+        end
+      end
+
+      context ':destroy' do
+        let!(:payment) { create(:payment, amount: 200, sale: sale) }
+        subject { make_request :delete, 'api/sales/1/payment' }
+
+        it 'deletes the associated record' do
+          expect { subject }.to change(Payment, :count).by(-1)
+          expect(response.status).to eq(200)
+          expect(sale.payment).to be_nil
+        end
+      end
+    end
+
+    context 'with belongs_to association' do
+      context ':show' do
+        let!(:payment) { create(:payment, sale: sale) }
+
+        it 'gets the association record' do
+          make_request :get, 'api/payments/1/sale'
+          expect(response.status).to eq(200)
+          expect(response.body).to eq(sale.to_json)
+        end
+      end
     end
   end
 

@@ -7,7 +7,17 @@ module Cathode
 
   protected
 
-    def resources(resource_name, params = nil, &block)
+    def resources(resource_name, params = {}, &block)
+      add_resource resource_name, false, params, &block
+    end
+
+    def resource(resource_name, params = {}, &block)
+      add_resource resource_name, true, params, &block
+    end
+
+    def add_resource(resource_name, singular, params, &block)
+      params ||= {}
+      params = params.merge(singular: singular)
       existing_resource = _resources.find resource_name
       new_resource = Resource.new(resource_name, params, self, &block)
 

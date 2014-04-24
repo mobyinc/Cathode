@@ -15,7 +15,7 @@ module Cathode
   protected
 
     def action(action, params = {}, &block)
-      actions << Action.create(action, @name, params, &block)
+      actions << Action.create(action, self, params, &block)
     end
 
     def get(action_name, &block)

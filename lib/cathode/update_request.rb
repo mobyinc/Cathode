@@ -3,7 +3,13 @@ module Cathode
     def default_action_block
       proc do
         begin
-          record = model.find(params[:id])
+          record = if resource.singular
+                    parent_model = resource.parent.model.find(parent_resource_id)
+                    parent_model.send resource.name
+                  else
+                    record = model.find(params[:id])
+                  end
+
           record.update(instance_eval(&@strong_params))
           body record.reload
         rescue ActionController::ParameterMissing => error

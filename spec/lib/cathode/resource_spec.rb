@@ -76,15 +76,300 @@ describe Cathode::Resource do
 
     context 'with a nested resource' do
       subject do
-        Cathode::Resource.new(:products) do
-          resources :sales, actions: [:index, :show]
+        block = proc do |subresource, plural, default, action|
+          method = plural ? :resources : :resource
+
+          proc do
+            send method, subresource do
+              if default
+                action action
+              else
+                override_action action do
+                  body 'hello'
+                end
+              end
+              if [:create, :update].include? action
+                attributes {}
+              end
+            end
+          end
+        end
+        Cathode::Resource.new(resource, &block.call(subresource, plural, default, action))
+      end
+      let(:resource) { :products }
+
+      context 'with a has_many association' do
+        let(:plural) { true }
+        let(:subresource) { :sales }
+
+        context ':index' do
+          let(:action) { :index }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sales])
+              expect(subject._resources.find(:sales).actions.names).to match_array([:index])
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sales])
+              expect(subject._resources.find(:sales).actions.names).to match_array([:index])
+            end
+          end
+        end
+
+        context ':show' do
+          let(:action) { :show }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'raises an error' do
+              expect { subject }.to raise_error(
+                Cathode::MissingAssociationError,
+                "Can't use default :show action on `products' without a has_one `sale' association"
+              )
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sales])
+              expect(subject._resources.find(:sales).actions.names).to match_array([:show])
+            end
+          end
+        end
+
+        context ':create' do
+          let(:action) { :create }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sales])
+              expect(subject._resources.find(:sales).actions.names).to match_array([:create])
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sales])
+              expect(subject._resources.find(:sales).actions.names).to match_array([:create])
+            end
+          end
+        end
+
+        context ':update' do
+          let(:action) { :update }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'raises an error' do
+              expect { subject }.to raise_error(
+                Cathode::MissingAssociationError,
+                "Can't use default :update action on `products' without a has_one `sale' association"
+              )
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sales])
+              expect(subject._resources.find(:sales).actions.names).to match_array([:update])
+            end
+          end
+        end
+
+        context ':destroy' do
+          let(:action) { :destroy }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'raises an error' do
+              expect { subject }.to raise_error(
+                Cathode::MissingAssociationError,
+                "Can't use default :destroy action on `products' without a has_one `sale' association"
+              )
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sales])
+              expect(subject._resources.find(:sales).actions.names).to match_array([:destroy])
+            end
+          end
         end
       end
 
-      it 'adds the resource' do
-        expect(subject._resources.names).to match_array([:sales])
-        expect(subject._resources.find(:sales).actions.names).to match_array([:index, :show])
+      context 'with a has_one association' do
+        let(:resource) { :sales }
+        let(:subresource) { :payment }
+        let(:plural) { false }
+
+        context ':index' do
+          let(:action) { :index }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'raises an error' do
+              expect { subject }.to raise_error(
+                Cathode::MissingAssociationError,
+                "Can't use default :index action on `sales' without a has_many or has_and_belongs_to_many `payment' association"
+              )
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:index])
+            end
+          end
+        end
+
+        context ':show' do
+          let(:action) { :show }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:show])
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:show])
+            end
+          end
+        end
+
+        context ':create' do
+          let(:action) { :create }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:create])
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:create])
+            end
+          end
+        end
+
+        context ':update' do
+          let(:action) { :update }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:update])
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:update])
+            end
+          end
+        end
+
+        context ':destroy' do
+          let(:action) { :destroy }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:destroy])
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:payment])
+              expect(subject._resources.find(:payment).actions.names).to match_array([:destroy])
+            end
+          end
+        end
       end
+
+      context 'with a belongs_to association' do
+        let(:resource) { :payments }
+        let(:subresource) { :sale }
+        let(:plural) { false }
+
+        context ':show' do
+          let(:action) { :show }
+
+          context 'with default behavior' do
+            let(:default) { true }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sale])
+              expect(subject._resources.find(:sale).actions.names).to match_array([:show])
+            end
+          end
+
+          context 'with custom behavior' do
+            let(:default) { false }
+
+            it 'adds the resource' do
+              expect(subject._resources.names).to match_array([:sale])
+              expect(subject._resources.find(:sale).actions.names).to match_array([:show])
+            end
+          end
+        end
+      end
+
+      context 'with a has_many:through association' do pending end
+
+      context 'with a has_and_belongs_to_many association' do pending end
+
+      context 'with no association' do pending end
     end
 
     context 'with custom action' do

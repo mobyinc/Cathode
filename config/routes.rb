@@ -1,10 +1,19 @@
 def attach_resources(resources)
   resources.each do |resource|
-    resources resource.name, controller: resource.controller_prefix.underscore, only: resource.default_actions.map(&:name) do
-      resource.custom_actions.each do |action|
-        match action.name => action.name, action: 'custom', via: action.http_method
+    if resource.singular
+      resource resource.name, controller: resource.controller_prefix.underscore, only: resource.default_actions.map(&:name) do
+        resource.custom_actions.each do |action|
+          match action.name => action.name, action: 'custom', via: action.http_method
+        end
+        attach_resources(resource._resources)
       end
-      attach_resources(resource._resources)
+    else
+      resources resource.name, controller: resource.controller_prefix.underscore, only: resource.default_actions.map(&:name) do
+        resource.custom_actions.each do |action|
+          match action.name => action.name, action: 'custom', via: action.http_method
+        end
+        attach_resources(resource._resources)
+      end
     end
   end
 end

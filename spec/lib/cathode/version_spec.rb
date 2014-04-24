@@ -85,7 +85,7 @@ describe Cathode::Version do
       it 'creates the resource' do
         expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
           expect(resource).to eq(:products)
-          expect(params).to be_nil
+          expect(params).to eq(singular: false)
           expect(block).to be_nil
         end
         subject
@@ -102,7 +102,7 @@ describe Cathode::Version do
       it 'creates the resource' do
         expect(Cathode::Resource).to receive(:new) do |resource, params, &block|
           expect(resource).to eq(:sales)
-          expect(params).to eq(actions: [:index, :create])
+          expect(params).to eq(actions: [:index, :create], singular: false)
           expect(block).to be_nil
         end
         subject

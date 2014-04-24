@@ -8,6 +8,8 @@ module Cathode
                 :override_block,
                 :http_method
 
+    delegate :parent, to: :resource
+
     def self.create(action, resource, params = nil, &block)
       klass = case action
               when :index
@@ -76,31 +78,90 @@ module Cathode
     def override(&block)
       @override_block = block
     end
+
+    def overridden?
+      override_block.present?
+    end
+
+    def after_resource_initialized; end
   end
 
   module RequiresStrongParams
     def after_resource_initialized
       if strong_params.nil?
-        fail UnknownAttributesError, "An attributes block was not specified for `#{name}' action on resource `#{resource}'"
+        fail UnknownAttributesError, "An attributes block was not specified for `#{name}' action on resource `#{resource.name}'"
       end
 
       self
     end
   end
 
-  class IndexAction < Action; end
+  module RequiresAssociation
+    def association_keys
+      [
+        resource.name.to_s.singularize.to_sym,
+        resource.name.to_s.pluralize.to_sym
+      ]
+    end
 
-  class ShowAction < Action; end
+    def after_resource_initialized
+      if parent.present? && !overridden?
+        reflections = parent.model.reflections
+
+        if association_keys.map { |key| reflections.include?(key) }.none?
+          raise MissingAssociationError, error_message
+        end
+      end
+
+      super
+    end
+  end
+
+  module RequiresHasOneAssociation
+    include RequiresAssociation
+
+    def association_keys
+      [resource.name.to_s.singularize.to_sym]
+    end
+
+    def error_message
+      "Can't use default :#{name} action on `#{parent.name}' without a has_one `#{resource.name.to_s.singularize}' association"
+    end
+  end
+
+  module RequiresHasManyAssociation
+    include RequiresAssociation
+
+    def association_keys
+      [resource.name.to_s.pluralize.to_sym]
+    end
+
+    def error_message
+      "Can't use default :#{name} action on `#{parent.name}' without a has_many or has_and_belongs_to_many `#{resource.name.to_s.singularize}' association"
+    end
+  end
+
+  class IndexAction < Action
+    include RequiresHasManyAssociation
+  end
+
+  class ShowAction < Action
+    include RequiresHasOneAssociation
+  end
 
   class CreateAction < Action
     include RequiresStrongParams
+    include RequiresAssociation
   end
 
   class UpdateAction < Action
     include RequiresStrongParams
+    include RequiresHasOneAssociation
   end
 
-  class DestroyAction < Action; end
+  class DestroyAction < Action
+    include RequiresHasOneAssociation
+  end
 
   class CustomAction < Action
     def after_initialize

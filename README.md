@@ -18,9 +18,8 @@ resourceful applications.
 * Nested resources
 
 ## Roadmap
-* Finish associations for nested resources and raise errors at API definition
-  time, not runtime
 * Singular resources
+* API tokens
 * Pre-defined subactions on :index (paging, cursoring, etc)
 * Attributes block on custom actions
 * Auto-loading in Rails w/o hardcoding the api/ dir?
@@ -32,6 +31,7 @@ resourceful applications.
 * Test coverage
 * Code Climate
 * Support for Rails 3.2 + StrongParams gem
+* Allow attributes block to come before create/update defined
 
 ## Getting Started
 Install the gem:
@@ -203,7 +203,7 @@ returns all the sales associated with a product, and `:create` adds a new sale
 associated with the product.
 
 For `belongs_to` associations, the `:show` action can be used to return the
-parent model.
+associated parent model.
 
 ## Goodies on the `index` action
 By default `index` actions return all records in your resource’s default scope.

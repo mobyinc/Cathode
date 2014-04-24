@@ -8,4 +8,6 @@ module Cathode
   class RequestMethodMissingError < NameError; end
 
   class DuplicateResourceError < RuntimeError; end
+
+  class MissingAssociationError < NameError; end
 end

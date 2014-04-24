@@ -97,6 +97,14 @@ module Cathode
       resource.model
     end
 
+    def parent_resource_id
+      params["#{parent_resource_name}_id"]
+    end
+
+    def parent_resource_name
+      resource.parent.name.to_s.singularize
+    end
+
     def body(value = Hash.new, &block)
       @_body = block_given? ? block.call : value
     end
