@@ -22,9 +22,11 @@ resourceful applications.
   time, not runtime
 * Singular resources
 * Pre-defined subactions on :index (paging, cursoring, etc)
+* Attributes block on custom actions
 * Real authentication – perhaps integrate w/ CanCan or similar?
 * Deprecation messages
 * Auto-documentation / changelog
+* Support for other ORMs
 * Travis CI
 * Test coverage
 * Code Climate
@@ -178,6 +180,26 @@ class Sale < ActiveRecord::Base
   belongs_to :product
 end
 ```
+
+Here’s how ActiveModel associations map to resourceful endpoints on your API:
+
+Product     | Sale         | Endpoints
+----------- | ------------ | --------------------
+`has_many`  | `belongs_to` | `GET|POST products/{id}/sales`
+`has_one`   | `belongs_to` | `GET|POST|PUT|DELETE products/{id}/sale`
+`habtm`     | `habtm`      | `GET|POST products/{id}/sales`, `GET|POST sales/{id}/products`
+
+When there is exactly one model attached to the first resource (i.e., a
+`has_one` association), you can use all the default actions except `:index`, so
+`:show` will return the sale associated with the product, `:create` will create
+a new sale and associate it with the product, `:update` will modify the sale,
+and `:destroy` will delete it.
+
+When there are many models attached to the resource (i.e., a `has_many` or
+`has_and_belongs_to_many` association), you can use the `:index` and `:create`
+actions. With a `has_many` on `Product` and a `belongs_to` on `Sale`, `:index`
+returns all the sales associated with a product, and `:create` adds a new sale
+associated with the product.
 
 ## Goodies on the `index` action
 By default `index` actions return all records in your resource’s default scope.
