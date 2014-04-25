@@ -19,7 +19,6 @@ resourceful applications.
 
 ## Roadmap
 * Singular resources
-* API tokens
 * Pre-defined subactions on :index (paging, cursoring, etc)
 * Attributes block on custom actions
 * Auto-loading in Rails w/o hardcoding the api/ dir?
@@ -32,6 +31,7 @@ resourceful applications.
 * Code Climate
 * Support for Rails 3.2 + StrongParams gem
 * Allow attributes block to come before create/update defined
+* Support for multiple API instances
 
 ## Getting Started
 Install the gem:
@@ -159,7 +159,7 @@ Note that, while these examples are using minor- and patch-level versions, you
 are not required to do so. You can use only major versions (x.0.0), major and
 minor versions (x.y.0), or all three (x.y.z).
 
-## API tokens
+## API Tokens
 Cathode comes with a token manager for controlling access to your API. By
 default, tokens aren’t required to access any APIs you define. To require tokens
 to access an API, use the `require_tokens` method:
@@ -172,28 +172,20 @@ Cathode::Base.define do
 end
 ```
 
-Of course, you can also selectively require tokens by version:
-
-```ruby
-Cathode::Base.define do
-  resources :products, actions: [:index]
-
-  version 2 do
-    require_tokens
-  end
-end
-```
-
 Cathode doesn’t currently have a way to associate tokens with a particular user,
-nor does it generate tokens automatically. When you’d like to issue someone a
-token, use the `generate` method:
+nor does it generate tokens automatically. Use Cathode’s `Token` model to generate
+a new token:
 
 ```ruby
-Cathode::Token.generate
+Cathode::Token.new
 ```
 
-Tokens are stored in the `tokens` resource under Cathode’s namespace, so won’t
-collide with anything in your Rails app.
+Rails’s [`authenticate_or_request_with_http_token`](http://apidock.com/rails/ActionController/HttpAuthentication/Token/ControllerMethods/authenticate_or_request_with_http_token) scheme is used to validate tokens, so API consumers
+must pass a valid `Authorization` header in the following form:
+
+```
+Authorization: Token token={consumer’s token}
+```
 
 ## Nested Resources
 Resources can be nested arbitrarily deep inside other resources. When resources

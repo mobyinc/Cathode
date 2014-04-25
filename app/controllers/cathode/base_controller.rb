@@ -27,6 +27,12 @@ module Cathode
   private
 
     def make_request
+      if Cathode::Base.tokens_required
+        authenticate_or_request_with_http_token do |token|
+          Token.find_by token: token
+        end
+      end
+
       request = Cathode::Request.create self
 
       render json: request._body, status: request._status unless performed?

@@ -371,4 +371,53 @@ describe 'API' do
       end
     end
   end
+
+  describe 'token auth' do
+    subject { get 'api/products', nil, headers }
+    let(:headers) { { 'HTTP_ACCEPT_VERSION' => '1.0.0' } }
+    before do
+      api = proc do |required|
+        proc do
+          require_tokens if required
+          resources :products, actions: [:index]
+        end
+      end
+      use_api(&api.call(required))
+    end
+
+    context 'when tokens are required' do
+      let(:required) { true }
+
+      context 'with a valid token' do
+        let(:token) { create(:token) }
+        before { headers['Authorization'] = "Token token=#{token.token}" }
+
+        it 'responds with ok' do
+          expect(subject).to eq(200)
+        end
+      end
+
+      context 'with an invalid token' do
+        before { headers['Authorization'] = 'Token token=invalid' }
+
+        it 'responds with unauthorized' do
+          expect(subject).to eq(401)
+        end
+      end
+
+      context 'with no token' do
+        it 'responds with unauthorized' do
+          expect(subject).to eq(401)
+        end
+      end
+    end
+
+    context 'when tokens are not required' do
+      let(:required) { false }
+
+      it 'responds with ok' do
+        expect(subject).to eq(200)
+      end
+    end
+  end
 end

@@ -24,8 +24,11 @@ module Cathode
 
   class Base
     class << self
+      attr_reader :tokens_required
+
       def reset!
         versions.clear
+        @tokens_required = false
       end
 
       def define(&block)
@@ -46,6 +49,10 @@ module Cathode
         version 1 do
           resources resource_name, params, &block
         end
+      end
+
+      def require_tokens
+        @tokens_required = true
       end
     end
   end
