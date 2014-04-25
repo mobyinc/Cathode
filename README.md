@@ -159,6 +159,42 @@ Note that, while these examples are using minor- and patch-level versions, you
 are not required to do so. You can use only major versions (x.0.0), major and
 minor versions (x.y.0), or all three (x.y.z).
 
+## API tokens
+Cathode comes with a token manager for controlling access to your API. By
+default, tokens aren’t required to access any APIs you define. To require tokens
+to access an API, use the `require_tokens` method:
+
+```ruby
+Cathode::Base.define do
+  require_tokens
+
+  resources :products, actions: [:index]
+end
+```
+
+Of course, you can also selectively require tokens by version:
+
+```ruby
+Cathode::Base.define do
+  resources :products, actions: [:index]
+
+  version 2 do
+    require_tokens
+  end
+end
+```
+
+Cathode doesn’t currently have a way to associate tokens with a particular user,
+nor does it generate tokens automatically. When you’d like to issue someone a
+token, use the `generate` method:
+
+```ruby
+Cathode::Token.generate
+```
+
+Tokens are stored in the `tokens` resource under Cathode’s namespace, so won’t
+collide with anything in your Rails app.
+
 ## Nested Resources
 Resources can be nested arbitrarily deep inside other resources. When resources
 are nested, Cathode uses your models’ associations to determine the default action
