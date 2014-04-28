@@ -1,5 +1,7 @@
 module Cathode
   class Action
+    include ActionDsl
+
     attr_accessor :strong_params
     attr_reader :action_access_filter,
                 :name,
@@ -63,10 +65,6 @@ module Cathode
       @action_access_filter = filter
     end
 
-    def attributes(&strong_params_block)
-      @strong_params = strong_params_block
-    end
-
     def allows(*subactions)
       @allowed_subactions = subactions
     end
@@ -91,7 +89,11 @@ module Cathode
   module RequiresStrongParams
     def after_resource_initialized
       if strong_params.nil?
-        fail UnknownAttributesError, "An attributes block was not specified for `#{name}' action on resource `#{resource.name}'"
+        if resource.strong_params.present?
+          @strong_params = resource.strong_params
+        else
+          fail UnknownAttributesError, "An attributes block was not specified for `#{name}' action on resource `#{resource.name}'"
+        end
       end
 
       super

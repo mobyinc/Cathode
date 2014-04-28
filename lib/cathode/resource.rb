@@ -7,7 +7,8 @@ module Cathode
                 :controller_prefix,
                 :model,
                 :parent,
-                :singular
+                :singular,
+                :strong_params
 
     def initialize(resource_name, params = nil, context = nil, &block)
       require_resource_constant! resource_name
@@ -41,6 +42,11 @@ module Cathode
 
       @actions.each do |action|
         action.after_resource_initialized if action.respond_to? :after_resource_initialized
+      end
+
+      if @strong_params.present? && actions.find(:create).nil? && actions.find(:update).nil?
+        raise UnknownActionError,
+          'An attributes block was specified without a :create or :update action'
       end
     end
 

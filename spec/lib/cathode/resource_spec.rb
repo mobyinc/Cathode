@@ -128,6 +128,23 @@ describe Cathode::Resource do
           expect { subject }.to raise_error(Cathode::UnknownActionError, 'An attributes block was specified without a :create or :update action')
         end
       end
+
+      context 'when attributes block is specified after create/update' do
+        subject do
+          Cathode::Resource.new(:products) do
+            attributes do |params|
+              params.require(:product).permit(:title)
+            end
+            action :create
+            action :update
+          end
+        end
+
+        it 'sets the strong params of both actions' do
+          expect(subject.actions.find(:create).strong_params).to_not be_nil
+          expect(subject.actions.find(:update).strong_params).to_not be_nil
+        end
+      end
     end
 
     context 'with a nested resource' do

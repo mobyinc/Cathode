@@ -31,7 +31,6 @@ resourceful applications.
 * Test coverage
 * Code Climate
 * Support for Rails 3.2 + StrongParams gem
-* Allow attributes block to come before create/update defined
 * Support for multiple API instances
 
 ## Getting Started

@@ -45,15 +45,7 @@ module Cathode
     end
 
     def attributes(&block)
-      create_action = actions.find :create
-      update_action = actions.find :update
-
-      unless create_action || update_action
-        fail UnknownActionError, 'An attributes block was specified without a :create or :update action'
-      end
-
-      create_action.strong_params = block if create_action.present?
-      update_action.strong_params = block if update_action.present?
+      @strong_params = block
     end
   end
 end
