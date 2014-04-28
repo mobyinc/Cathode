@@ -93,6 +93,13 @@ module Cathode
 
   private
 
+    def attributes(&block)
+      block.call(params)
+    rescue ActionController::ParameterMissing => error
+      body error.message
+      status :bad_request
+    end
+
     def model
       resource.model
     end
@@ -106,6 +113,7 @@ module Cathode
     end
 
     def body(value = Hash.new, &block)
+      return if _body.present?
       @_body = block_given? ? block.call : value
     end
 

@@ -21,7 +21,6 @@ resourceful applications.
 ## Roadmap
 * Querying
 * Pre-defined subactions on :index (paging, cursoring, etc)
-* Attributes block on custom actions
 * Auto-loading in Rails w/o hardcoding the api/ dir?
 * Real authentication – perhaps integrate w/ CanCan or similar?
 * Deprecation messages

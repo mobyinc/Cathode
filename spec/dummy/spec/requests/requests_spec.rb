@@ -335,6 +335,9 @@ describe 'API' do
             render json: Product.last
           end
           get :custom_replace do
+            attributes do
+              params.require(:flag)
+            end
             body Product.all.reverse
           end
         end
@@ -344,7 +347,7 @@ describe 'API' do
     let!(:products) { create_list(:product, 3) }
 
     context 'with replace (default)' do
-      subject { make_request(:get, 'api/products/custom_replace', nil, '1.0') }
+      subject { make_request(:get, 'api/products/custom_replace', { flag: true }, '1.0') }
 
       it 'sets the status' do
         subject
@@ -368,6 +371,20 @@ describe 'API' do
       it 'uses the override logic' do
         subject
         expect(response.body).to eq(Product.last.to_json)
+      end
+    end
+
+    context 'with attributes block' do
+      subject { make_request(:get, 'api/products/custom_replace', nil, '1.0') }
+
+      it 'sets the status' do
+        subject
+        expect(response.status).to eq(400)
+      end
+
+      it 'sets the body' do
+        subject
+        expect(response.body).to eq('param is missing or the value is empty: flag')
       end
     end
   end
