@@ -12,6 +12,7 @@ module Cathode
   autoload :DestroyRequest,     'cathode/destroy_request'
   autoload :IndexRequest,       'cathode/index_request'
   autoload :ObjectCollection,   'cathode/object_collection'
+  autoload :Query,              'cathode/query'
   autoload :Request,            'cathode/request'
   autoload :Resource,           'cathode/resource'
   autoload :ResourceDsl,        'cathode/resource_dsl'
