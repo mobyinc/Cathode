@@ -31,6 +31,62 @@ describe Cathode::Resource do
       end
     end
 
+    context 'with a singular resource' do
+      [:index, :create, :update, :show].each do |action|
+        context action do
+          subject do
+            resource = proc do |action, override|
+              Cathode::Resource.new(:product, singular: true) do
+                if override
+                  override_action(action) { head :ok }
+                else
+                  action(action)
+                end
+
+                if [:create, :update].include? action
+                  attributes {}
+                end
+              end
+            end
+            resource.call(action, override)
+          end
+
+          context 'with custom behavior' do
+            let(:override) { true }
+
+            it 'creates the action' do
+              expect(subject.actions.names).to eq([action])
+            end
+          end
+
+          describe 'with default behavior' do
+            let(:override) { false }
+
+            it 'raises an error' do
+              expect { subject }.to raise_error(
+                Cathode::ActionBehaviorMissingError,
+                "Can't use default :#{action} action on singular resource `product'"
+              )
+            end
+          end
+        end
+      end
+
+      context 'custom' do
+        subject do
+          Cathode::Resource.new(:product, singular: true) do
+            get :custom do
+              head :ok
+            end
+          end
+        end
+
+        it 'creates the action' do
+          expect(subject.actions.names).to eq([:custom])
+        end
+      end
+    end
+
     context 'with an attributes block' do
       subject do
         Cathode::Resource.new(:products, actions: actions) do

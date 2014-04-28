@@ -16,9 +16,9 @@ resourceful applications.
 * Versioning of endpoints
 * Custom (non-resourceful) actions on versions and resources
 * Nested resources
+* Singular resources
 
 ## Roadmap
-* Singular resources
 * Querying
 * Pre-defined subactions on :index (paging, cursoring, etc)
 * Attributes block on custom actions
@@ -193,6 +193,23 @@ Because Cathode is meant to be paired with a client-side Anode library,
 cross-origin resource sharing (CORS) is enabled by adding
 [Rack::Cors](https://github.com/cyu/rack-cors) to the application’s middleware
 stack.
+
+## Singular resources
+Singular resources can be defined as well. If the resource is independent (i.e.,
+not nested inside another resource), there is no defined default behavior for
+the default actions; you must provide the behavior yourself. Nested singular
+resources do have default behavior, however, which is described in the “Nested
+Resources” section.
+
+```ruby
+Cathode::Base.define do
+  resource :product do
+    override_action :create do
+      # custom creation logic…
+    end
+  end
+end
+```
 
 ## Nested Resources
 Resources can be nested arbitrarily deep inside other resources. When resources

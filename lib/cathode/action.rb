@@ -83,7 +83,9 @@ module Cathode
       override_block.present?
     end
 
-    def after_resource_initialized; end
+    def after_resource_initialized
+      self
+    end
   end
 
   module RequiresStrongParams
@@ -92,7 +94,7 @@ module Cathode
         fail UnknownAttributesError, "An attributes block was not specified for `#{name}' action on resource `#{resource.name}'"
       end
 
-      self
+      super
     end
   end
 
@@ -141,25 +143,41 @@ module Cathode
     end
   end
 
+  module RequiresCustomActionForSingular
+    def after_resource_initialized
+      if resource.singular && !overridden? && resource.parent.nil?
+        raise Cathode::ActionBehaviorMissingError,
+          "Can't use default :#{name} action on singular resource `#{resource.name}'"
+      end
+
+      super
+    end
+  end
+
   class IndexAction < Action
+    include RequiresCustomActionForSingular
     include RequiresHasManyAssociation
   end
 
   class ShowAction < Action
+    include RequiresCustomActionForSingular
     include RequiresHasOneAssociation
   end
 
   class CreateAction < Action
+    include RequiresCustomActionForSingular
     include RequiresStrongParams
     include RequiresAssociation
   end
 
   class UpdateAction < Action
+    include RequiresCustomActionForSingular
     include RequiresStrongParams
     include RequiresHasOneAssociation
   end
 
   class DestroyAction < Action
+    include RequiresCustomActionForSingular
     include RequiresHasOneAssociation
   end
 

@@ -10,4 +10,6 @@ module Cathode
   class DuplicateResourceError < RuntimeError; end
 
   class MissingAssociationError < NameError; end
+
+  class ActionBehaviorMissingError < NameError; end
 end
