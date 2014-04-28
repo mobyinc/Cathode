@@ -188,6 +188,12 @@ must pass a valid `Authorization` header in the following form:
 Authorization: Token token={consumer’s token}
 ```
 
+## CORS
+Because Cathode is meant to be paired with a client-side Anode library,
+cross-origin resource sharing (CORS) is enabled by adding
+[Rack::Cors](https://github.com/cyu/rack-cors) to the application’s middleware
+stack.
+
 ## Nested Resources
 Resources can be nested arbitrarily deep inside other resources. When resources
 are nested, Cathode uses your models’ associations to determine the default action

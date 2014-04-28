@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '~> 4.0.0'
   s.add_dependency 'semantic', '~> 1.3.0'
   s.add_dependency 'ruby_deep_clone', '~> 0.6.0'
+  s.add_dependency 'rack-cors', '~> 0.2.9'
 
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'capybara'
