@@ -21,8 +21,8 @@ resourceful applications.
 ## Roadmap
 * Querying
 * Pre-defined subactions on :index (paging, cursoring, etc)
-* Auto-loading in Rails w/o hardcoding the api/ dir?
-* Real authentication – perhaps integrate w/ CanCan or similar?
+* Auto-loading in Rails w/o hardcoding the api/ dir
+* Real authentication – perhaps integrate w/ CanCan or similar
 * Deprecation messages
 * Auto-documentation / changelog
 * Support for other ORMs
@@ -46,7 +46,10 @@ mount Cathode::Engine => '/api' # use a namespace of your choice
 
 ## Defining Your API
 Cathode’s DSL provides an easy way to define your API’s versions and the
-resources inside of them.
+resources inside of them. Place your API files in `app/api` for Cathode to load
+them automatically; alternatively, place them anywhere you wish and `require`
+them manually. See [Files & Naming Conventions](#files_naming) for some different ideas for
+organizing your files.
 
 ```ruby
 Cathode::Base.define do
@@ -74,17 +77,21 @@ and `get api/sales/{id}`. Those endpoints are not accessible in version 1.
 However, because versions cascade, the actions on the `products` resource are all
 accessible in version 1.0.1.
 
-### Strong parameters for `create` and `update` actions
-Because ActiveModel prevents you from writing non-whitelisted attributes, you’ll
-need to specify a strong parameters block when you define a `create` or `update`
-action. The request `params` are passed to the block, and you can use the
-[Strong Parameters](https://github.com/rails/strong_parameters) API just as you
-would in a controller.
+## Attributes Block (Strong Parameters)
+Using Cathode’s `attribute` method, you can pass a block to any action that will
+be evaluated by Rails’s [Strong Parameters](https://github.com/rails/strong_parameters).
+The request params are available in the block’s context, so you can use the
+strong params API just as you would in a controller.
+
+The `create` and `update` actions require an attributes block be present if
+you’re using the default action behavior. If you call `attributes` at the
+resource level, Cathode uses it for both the `create` and `update` actions. Call
+it at the action level to limit the strong params to just that action.
 
 ```ruby
 # use the same attribute whitelist for `create` and `update`
 resources :products, actions: [:create, :update] do
-  attributes do |params|
+  attributes do
     params.require(:product).permit(:title, :description, :cost)
   end
 end
@@ -92,14 +99,23 @@ end
 # use different attribute whitelists for `create` and `update`
 resources :products do
   action :create do
-    attributes do |params|
+    attributes do
       params.require(:product).permit(:title, :description, :cost)
     end
   end
 
   action :update do
-    attributes do |params|
+    attributes do
       params.require(:product).permit(:description, :cost)
+    end
+  end
+end
+
+# use strong params on a custom action
+resources :products do
+  get :custom do
+    attributes do
+      params.require(:secret)
     end
   end
 end
@@ -192,7 +208,7 @@ cross-origin resource sharing (CORS) is enabled by adding
 [Rack::Cors](https://github.com/cyu/rack-cors) to the application’s middleware
 stack.
 
-## Singular resources
+## Singular Resources
 Singular resources can be defined as well. If the resource is independent (i.e.,
 not nested inside another resource), there is no defined default behavior for
 the default actions; you must provide the behavior yourself. Nested singular
@@ -254,27 +270,6 @@ associated with the product.
 
 For `belongs_to` associations, the `:show` action can be used to return the
 associated parent model.
-
-## Goodies on the `index` action
-By default `index` actions return all records in your resource’s default scope.
-However, common operations–like filtering, sorting, paging, cursoring,
-etc–are also supported. For example, an application might make the following API
-call:
-
-```ruby
-GET /api/products?query=flashlight&sort=desc&page=5
-```
-
-To add support for this functionality in Cathode, just flip on querying, sorting,
-and paging in the `index` action:
-
-```ruby
-resources :products do
-  action :index do
-    allows :querying, :sorting, :paging
-  end
-end
-```
 
 ## Replacing & Overriding Default Actions
 Of course, you won’t want to use Cathode’s default actions in every scenario.
@@ -346,6 +341,95 @@ end
 Note that custom actions use the `replace` functionality described above by
 default. You can use the override functionality instead by using the `override`
 and `override_action` methods.
+
+<a name="files_naming"></a>
+## Files & Naming Conventions
+Cathode is agnostic to the way you organize your API files. Since you can either
+define an API all at once using `Cathode::Base.define`, or each version
+separately using `Cathode::Base.version`, you have many organization options.
+Following are some examples.
+
+### Single file for API
+If your API is tiny and you only have a handful of versions, you could place
+them all in a single file:
+
+```ruby
+# api/api.rb
+
+Cathode::Base.define do
+  version 1 do
+    resources :products, actions: :all
+  end
+
+  version 2 do
+    resources :products do
+      remove_action :delete
+    end
+
+    resources :sales, actions: [:index]
+  end
+end
+```
+
+### Files for each version
+To break things apart a bit more, you can use a single file for each version.
+
+```
+api/
+  v1.rb
+  v2.rb
+```
+```ruby
+# api/v1.rb
+Cathode::Base.version 1 do
+  resources :products, actions: [:index, :show, :delete]
+end
+
+# api/v2.rb
+Cathode::Base.version 2 do
+  resources :products do
+    remove_action :delete
+  end
+
+  resources :sales, actions: [:index]
+end
+```
+
+### Folders for each version, files for each resource
+Another method would be to have a folder for each version of your API, and files
+for each resource:
+
+```
+api/
+  v1/
+    products.rb
+  v2/
+    products.rb
+    sales.rb
+```
+```ruby
+# api/v1/products.rb
+Cathode::Base.version 1 do
+  resources :products, actions: [:index, :show, :delete]
+end
+
+# api/v2/products.rb
+Cathode::Base.version 2 do
+  resources :products do
+    remove_action :delete
+  end
+end
+
+# api/v2/sales.rb
+Cathode::Base.version 2 do
+  resources :sales, actions: [:index]
+end
+```
+---
+
+*All functionality below is not yet implemented completely.*
+
+---
 
 ## Querying
 Cathode’s querying functionality can be used to send robust read-only queries
@@ -432,110 +516,10 @@ curl api/products/query?query='
 '
 ```
 
-## Deprecation
-With Cathode’s slick versioning, you’ll be implicitly deprecating junk in previous
-versions each time you introduce a new breaking change. When that happens, users
-of previous versions of your API should be told that a feature they’re using is
-deprecated. By default, Cathode will respond with a deprecation warning for those
-users. So users of version `1.1` of your API would receive the following
-response when making a call to `/api/products/search`:
-
-```json
-{
-  "products": [ array of the products found… ]
-  "messages": [
-    "The search endpoint is deprecated and is removed in version 2.0.0 of the
-API"]
-}
-```
-
-## Files & Naming Conventions
-Cathode is agnostic to the way you organize your API files. Since you can either
-define an API all at once using `Cathode::Base.define`, or each version
-separately using `Cathode::Base.version`, you have many organization options.
-Following are some examples.
-
-### Single file for API
-If your API is tiny and you only have a handful of versions, you could place
-them all in a single file:
-
-```ruby
-# api/api.rb
-
-Cathode::Base.define do
-  version 1 do
-    resources :products, actions: :all
-  end
-
-  version 2 do
-    resources :products do
-      remove_action :delete
-    end
-
-    resources :sales, actions: [:index]
-  end
-end
-```
-
-### Files for each version
-To break things apart a bit more, you can use a single file for each version.
-
-```
-api/
-  v1.rb
-  v2.rb
-```
-```ruby
-# api/v1.rb
-Cathode::Base.version 1 do
-  resources :products, actions: [:index, :show, :delete]
-end
-
-# api/v2.rb
-Cathode::Base.version 2 do
-  resources :products do
-    remove_action :delete
-  end
-
-  resources :sales, actions: [:index]
-end
-```
-
-### Folders for each version, files for each resource
-Another method would be to have a folder for each version of your API, and files
-for each resource:
-
-```
-api/
-  v1/
-    products.rb
-  v2/
-    products.rb
-    sales.rb
-```
-```ruby
-# api/v1/products.rb
-Cathode::Base.version 1 do
-  resources :products, actions: [:index, :show, :delete]
-end
-
-# api/v2/products.rb
-Cathode::Base.version 2 do
-  resources :products do
-    remove_action :delete
-  end
-end
-
-# api/v2/sales.rb
-Cathode::Base.version 2 do
-  resources :sales, actions: [:index]
-end
-```
-
 ## Documentation & Changelogs
 By sticking to Cathode’s versioning scheme, you tell it a lot about your API. So
 much, in fact, that we can use it to automatically generate documentation for
-all versions of your API and generate a changelog. Running `cool docs` will
+all versions of your API and generate a changelog. Running `rake cathode:docs` will
 generate the documentation at `docs/api/1.0.0`, `docs/api/1.1.0`,
 `docs/api/2.0.0`, and `docs/api/2.1.0`. It will also automatically add a
 `Changelog`:
