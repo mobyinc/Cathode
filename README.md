@@ -12,21 +12,28 @@ stable**. Things are changing rapidly; the API will be stabilized in version
 [![Code Climate](https://codeclimate.com/github/mobyinc/Cathode.png)](https://codeclimate.com/github/mobyinc/Cathode)
 [![Dependency Status](https://gemnasium.com/mobyinc/Cathode.svg)](https://gemnasium.com/mobyinc/Cathode)
 
-Cathode is a gem for Rails projects that generates API boilerplate for
-resourceful applications.
+Cathode is a gem for Rails projects that provides a DSL for generating dynamic
+API boilerplate (created at runtime, no generated files) for resourceful
+applications. It comes with default behavior for CRUD operations and support for
+ActiveModel associations, allowing you to greatly reduce the amount of
+boilerplate you write. Cathode also supports custom actions and token
+authorization. It has first-class support for versioning, so that nothing in
+your API exists outside the context of a version.
 
 ## Features
-* Generate endpoints for common CRUD actions:
-  * Listing resources, optionally filtered and paginated
+* Versioning of resources and actions
+* Default behavior for CRUD operations
+  * Listing resources, optionally paginated
   * Finding a single resource
   * Creating a new resource
   * Updating a resource
   * Deleting a resource
-* Endpoints respond to JSON and output JSON by default (possibly add XML et al later on?)
-* Versioning of endpoints
+* Endpoints respond to JSON and output JSON
 * Custom (non-resourceful) actions on versions and resources
 * Nested resources
 * Singular resources
+* Strong parameters
+* API tokens
 
 ## Roadmap
 See [roadmap.md](https://github.com/mobyinc/Cathode/blob/master/roadmap.md).

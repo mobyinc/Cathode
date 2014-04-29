@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ['contact@builtbymoby.com']
   s.homepage    = 'https://github.com/mobyinc/cathode'
   s.summary     = 'API boilerplate for Rails applications'
-  s.description = 'Provides API boilerplate (routes + controllers) for resourceful Rails apps'
+  s.description = 'Provides dynamic (runtime, no generated files) boilerplate (routes + controllers) and default CRUD actions for resourceful Rails apps'
   s.license     = 'MIT'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
