@@ -38,6 +38,9 @@ your API exists outside the context of a version.
 ## Roadmap
 See [roadmap.md](https://github.com/mobyinc/Cathode/blob/master/roadmap.md).
 
+## Documentation
+The full documentation is [here](http://rubydoc.info/github/mobyinc/Cathode/master/frames).
+
 ## Getting Started
 ### Requirements
 Cathode currently requires Rails 4.0 or higher. (We hope to support 3.2 in the
