@@ -10,3 +10,5 @@ spec/dummy/.sass-cache
 *.swo
 .DS_Store
 *.gem
+.yardoc/
+doc/

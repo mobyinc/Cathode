@@ -1,27 +1,12 @@
 module Cathode
+  # Defines a basic controller for all Cathode controllers to inherit from.
+  # Intercepts all Rails requests and sends them off to {Request} with the
+  # context to to be processed.
   class BaseController < ActionController::Base
-    def index
-      make_request
-    end
-
-    def show
-      make_request
-    end
-
-    def create
-      make_request
-    end
-
-    def update
-      make_request
-    end
-
-    def destroy
-      make_request
-    end
-
-    def custom
-      make_request
+    %w(index show create update destroy custom).each do |method|
+      define_method method do
+        make_request
+      end
     end
 
   private

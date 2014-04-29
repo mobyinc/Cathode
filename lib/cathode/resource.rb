@@ -1,15 +1,23 @@
 module Cathode
+  # A `Resource` is paired with a Rails model and describes the actions that the
+  # resource responds to.
   class Resource
     include ActionDsl
     include ResourceDsl
 
-    attr_reader :name,
-                :controller_prefix,
+    attr_reader :controller_prefix,
                 :model,
+                :name,
                 :parent,
                 :singular,
                 :strong_params
 
+    # Creates a new resource.
+    # @param resource_name [Symbol] The resource's name
+    # @param params [Hash] An optional params hash, e.g. `{ actions: :all }`
+    # @param context [Resource] An optional parent resource
+    # @param block The resource's actions and properties, defined with the
+    #   {ActionDsl} and {ResourceDsl}
     def initialize(resource_name, params = nil, context = nil, &block)
       require_resource_constant! resource_name
 

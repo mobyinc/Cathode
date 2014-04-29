@@ -1,5 +1,9 @@
 module Cathode
+  # Defines the default behavior for an index request.
   class IndexRequest < Request
+    # Determine the model to use depending on the request. If a sub-resource
+    # was requested, use the parent model to get the association. Otherwise, use
+    # all the resource's model's records.
     def model
       if @resource_tree.size > 1
         parent_model_id = params["#{@resource_tree.first.name.to_s.singularize}_id"]
@@ -13,6 +17,9 @@ module Cathode
       end
     end
 
+    # Determine the default action to use depending on the request. If the
+    # `page` param was passed and the action allows paging, page the results.
+    # Otherwise, set the request body to all records.
     def default_action_block
       proc do
         all_records = model

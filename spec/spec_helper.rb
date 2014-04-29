@@ -27,6 +27,6 @@ RSpec.configure do |config|
         Cathode.send(:remove_const, name.to_sym)
       end
     end
-    Cathode::Base.reset!
+    Cathode::Base.send :reset!
   end
 end

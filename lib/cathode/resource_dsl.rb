@@ -1,6 +1,9 @@
 module Cathode
+  # Holds the domain-specific language (DSL) for describing resources.
   module ResourceDsl
-
+    # Lists all the resources; initializes an empty `ObjectCollection` if there
+    # aren't any yet
+    # @return [Array] The resources
     def _resources
       @_resources ||= ObjectCollection.new
     end

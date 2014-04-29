@@ -4,7 +4,6 @@ module SpecHelpers
   end
 
   def use_api(&block)
-    Cathode::Base.reset!
     Cathode::Base.define(&block)
 
     Rails.application.reload_routes!

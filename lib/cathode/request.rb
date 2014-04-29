@@ -1,17 +1,29 @@
 module Cathode
+  # A `Request` object is created when a Rails request is intercepted by
+  # Cathode. This object is responsible for enforcing version headers as well as
+  # token authorization headers. After header enforcement, the object figures
+  # out which version and resource/action to use to process the request.
+  # Finally, the request's `_body` (HTTP response body) and `_status` (HTTP
+  # status code) are set and rendered from the controller that initiated the
+  # request.
   class Request
     attr_reader :_body,
-                :custom_logic,
                 :_status,
-                :resource,
-                :model,
                 :action,
-                :context
+                :context,
+                :custom_logic,
+                :model,
+                :resource
 
     delegate :allowed?, to: :action
     delegate :params, to: :context
 
     class << self
+      # Creates a request by initializing the appropriate subclass.
+      # @param context [ActionController] The controller responding to the
+      #   request
+      # @return [IndexRequest, ShowRequest, CreateRequest, UpdateRequest,
+      #   DestroyRequest, CustomRequest] The subclassed request
       def create(context)
         klass = case context.params[:action].to_sym
                 when :index
@@ -31,6 +43,8 @@ module Cathode
       end
     end
 
+    # Initializes the request
+    # @param context [ActionController] The controller responding to the request
     def initialize(context)
       @context = context
 

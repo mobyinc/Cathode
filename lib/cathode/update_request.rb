@@ -1,5 +1,9 @@
 module Cathode
+  # Defines the default behavior for an update request.
   class UpdateRequest < Request
+    # Sets the default action to update a resource. If the resource is
+    # singular, updates the parent's associated resource. Otherwise, updates the
+    # resource directly.
     def default_action_block
       proc do
         begin

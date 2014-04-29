@@ -1,13 +1,22 @@
 module Cathode
+  # Holds the domain-specific language (DSL) for describing actions.
   module ActionDsl
+    # Lists the actions that are default (i.e., `index`, `show`, `create`,
+    #   `update`, and `destroy`)
+    # @return [Array] The default actions
     def default_actions
       actions.select { |action| DEFAULT_ACTIONS.include? action.name }
     end
 
+    # Lists the actions that are not default
+    # @return [Array] The custom actions
     def custom_actions
       actions - default_actions
     end
 
+    # Lists all the actions; initializes an empty `ObjectCollection` if there
+    # aren't any yet
+    # @return [Array] The actions
     def actions
       @actions ||= ObjectCollection.new
     end

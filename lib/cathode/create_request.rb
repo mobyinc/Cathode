@@ -1,5 +1,8 @@
 module Cathode
+  # Defines the default behavior for a create request.
   class CreateRequest < Request
+    # Sets the default action to create a new resource. If the resource is
+    # singular, sets the parent resource `id` as well.
     def default_action_block
       proc do
         begin
