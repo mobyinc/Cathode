@@ -5,6 +5,7 @@ require 'rspec/rails'
 require 'rspec/autorun'
 require 'factory_girl_rails'
 require 'timecop'
+require 'pry'
 
 Rails.backtrace_cleaner.remove_silencers!
 

@@ -1,4 +1,3 @@
-require 'pry'
 require 'cathode/engine'
 require 'cathode/railtie'
 require 'cathode/exceptions'
