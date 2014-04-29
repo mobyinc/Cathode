@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'ruby_deep_clone', '~> 0.6.0'
   s.add_dependency 'semantic', '~> 1.3.0'
 
+  s.add_development_dependency 'simplecov', '~> 0.7.1'
   s.add_development_dependency 'coveralls', '~> 0.7.0'
   s.add_development_dependency 'factory_girl_rails', '~> 4.4.1'
   s.add_development_dependency 'pry-debugger', '~> 0.2.2'

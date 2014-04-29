@@ -1,7 +1,7 @@
 # Warning
 This gem is undergoing heavy development and is using [Semantic
-Versioning](http://semver.org/), which means that *nothing in version 0.1.x is
-stable*. Things are changing rapidly; the API will be stabilized in version
+Versioning](http://semver.org/), which means that **nothing in version 0.1.x is
+stable**. Things are changing rapidly; the API will be stabilized in version
 1.0.0. In the meantime, any feedback and testing is welcome.
 
 # Cathode
@@ -10,6 +10,7 @@ stable*. Things are changing rapidly; the API will be stabilized in version
 [![Documentation](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/github/mobyinc/Cathode/master/frames)
 [![Coverage Status](https://coveralls.io/repos/mobyinc/Cathode/badge.png)](https://coveralls.io/r/mobyinc/Cathode)
 [![Code Climate](https://codeclimate.com/github/mobyinc/Cathode.png)](https://codeclimate.com/github/mobyinc/Cathode)
+[![Dependency Status](https://gemnasium.com/mobyinc/Cathode.svg)](https://gemnasium.com/mobyinc/Cathode)
 
 Cathode is a gem for Rails projects that generates API boilerplate for
 resourceful applications.
