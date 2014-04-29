@@ -1,5 +1,8 @@
-**This gem is under heavy development and is not ready to be used in production
-systems.**
+# Warning
+This gem is undergoing heavy development and is using [Semantic
+Versioning](http://semver.org/), which means that *nothing in version 0.1.x is
+stable*. Things are changing rapidly; the API will be stabilized in version
+1.0.0. In the meantime, any feedback and testing is welcome.
 
 # Cathode
 [![Gem Version](https://badge.fury.io/rb/cathode.svg)](http://badge.fury.io/rb/cathode)

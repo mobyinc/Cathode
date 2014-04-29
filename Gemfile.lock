@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cathode (0.0.1)
+    cathode (0.1.0)
       rack-cors (~> 0.2.9)
       rails (~> 4.0.0)
       ruby_deep_clone (~> 0.6.0)

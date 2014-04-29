@@ -1,3 +1,4 @@
+require 'rails'
 module Cathode
   # Define a Rails engine with an isolated `Cathode` namespace.
   class Engine < ::Rails::Engine
@@ -7,7 +8,7 @@ module Cathode
       g.assets false
       g.helper false
     end
-    isolate_namespace Cathode
 
+    isolate_namespace Cathode
   end
 end
