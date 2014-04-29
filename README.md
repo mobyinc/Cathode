@@ -2,6 +2,7 @@
 systems.**
 
 # Cathode
+[![Gem Version](https://badge.fury.io/rb/cathode.svg)](http://badge.fury.io/rb/cathode)
 [![Documentation](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/github/mobyinc/Cathode/master/frames)
 [![Coverage Status](https://coveralls.io/repos/mobyinc/Cathode/badge.png)](https://coveralls.io/r/mobyinc/Cathode)
 [![Code Climate](https://codeclimate.com/github/mobyinc/Cathode.png)](https://codeclimate.com/github/mobyinc/Cathode)
