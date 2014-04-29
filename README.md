@@ -29,15 +29,7 @@ resourceful applications.
 * Singular resources
 
 ## Roadmap
-* Querying
-* Pre-defined subactions on :index (paging, cursoring, etc)
-* Auto-loading in Rails w/o hardcoding the api/ dir
-* Real authentication – perhaps integrate w/ CanCan or similar
-* Deprecation messages
-* Auto-documentation / changelog
-* Support for other ORMs
-* Support for Rails 3.2 + StrongParams gem
-* Support for multiple API instances
+See [roadmap.md](https://github.com/mobyinc/Cathode/blob/master/roadmap.md).
 
 ## Getting Started
 ### Requirements
@@ -49,6 +41,7 @@ you need:
 * Rails >= 4.0
 * ActiveRecord (more ORMs will be supported in the future)
 
+### Installation
 Install the gem:
 
 ```bash
@@ -60,7 +53,7 @@ Mount the engine in your `config/routes.rb` file:
 mount Cathode::Engine => '/api' # use a namespace of your choice
 ```
 
-## Defining Your API
+### Defining Your API
 Cathode’s DSL provides an easy way to define your API’s versions and the
 resources inside of them. Place your API files in `app/api` for Cathode to load
 them automatically; alternatively, place them anywhere you wish and `require`
@@ -92,6 +85,50 @@ In version 1.0.1, endpoints are added for the `sales` endpoint: `get api/sales/`
 and `get api/sales/{id}`. Those endpoints are not accessible in version 1.
 However, because versions cascade, the actions on the `products` resource are all
 accessible in version 1.0.1.
+
+## Versioning
+Cathode has first-class support for API versioning and aims to make extending
+versions and deprecating old functionality an easy process. You’re encouraged to
+use [Semantic Versioning](http://semver.org/), and all Cathode version numbers
+must be SemVer-compliant.
+
+If you define resources without a version, Cathode assumes it’s version
+`1.0.0` of your API. When you’re ready to introduce changes, you can
+easily provision a new version:
+
+```ruby
+resources :products, actions: [:index, :show, :search]
+
+version 1.1 do
+  resources :sales, actions: [:index]
+  # the products resource is inherited from version 1
+end
+
+version 2 do
+  # the products resource is inherited from version 1.1, except we explicitly
+  # remove the `search` action
+  remove_action :products, :search
+end
+```
+
+Versions inherit from their ancestors, so anything not explicitly changed in
+version `2` will be carried over from version `1.1`, which in turn inherits from
+version `1`.
+
+In version `1.1`, we’ve added a new `sales` endpoint. This doesn’t introduce a
+breaking change, as users of version `1.0` can still use it without knowing
+about the `sales` endpoint.
+
+However, in version `2` we *do* introduce a breaking change–namely, that
+products can no longer be searched. Users of versions `1.x` of our API will
+still be able to access the endpoint, but users of version `2` will not.
+
+Usually, changes like these would require the addition of new route namespaces
+and groups of controllers. With Cathode, these are all taken care of for you.
+
+Note that, while these examples are using minor- and patch-level versions, you
+are not required to do so. You can use only major versions (x.0.0), major and
+minor versions (x.y.0), or all three (x.y.z).
 
 ## Attributes Block (Strong Parameters)
 Using Cathode’s `attribute` method, you can pass a block to any action that will
@@ -145,50 +182,6 @@ Cathode doesn’t do any explicit serialization of resources when responding to
 requests. However, it does use `render: json`, which will invoke [ActiveModel
 serializers](https://github.com/rails-api/active_model_serializers) if you’ve
 defined them.
-
-## Versioning
-Cathode has first-class support for API versioning and aims to make extending
-versions and deprecating old functionality an easy process. You’re encouraged to
-use [Semantic Versioning](http://semver.org/), and all Cathode version numbers
-must be SemVer-compliant.
-
-If you define resources without a version, Cathode assumes it’s version
-`1.0.0` of your API. When you’re ready to introduce changes, you can
-easily provision a new version:
-
-```ruby
-resources :products, actions: [:index, :show, :search]
-
-version 1.1 do
-  resources :sales, actions: [:index]
-  # the products resource is inherited from version 1
-end
-
-version 2 do
-  # the products resource is inherited from version 1.1, except we explicitly
-  # remove the `search` action
-  remove_action :products, :search
-end
-```
-
-Versions inherit from their ancestors, so anything not explicitly changed in
-version `2` will be carried over from version `1.1`, which in turn inherits from
-version `1`.
-
-In version `1.1`, we’ve added a new `sales` endpoint. This doesn’t introduce a
-breaking change, as users of version `1.0` can still use it without knowing
-about the `sales` endpoint.
-
-However, in version `2` we *do* introduce a breaking change–namely, that
-products can no longer be searched. Users of versions `1.x` of our API will
-still be able to access the endpoint, but users of version `2` will not.
-
-Usually, changes like these would require the addition of new route namespaces
-and groups of controllers. With Cathode, these are all taken care of for you.
-
-Note that, while these examples are using minor- and patch-level versions, you
-are not required to do so. You can use only major versions (x.0.0), major and
-minor versions (x.y.0), or all three (x.y.z).
 
 ## API Tokens
 Cathode comes with a token manager for controlling access to your API. By
@@ -320,7 +313,7 @@ resources :sales, actions: :all do
 end
 ```
 
-## Custom Actions & Non-resourceful Endpoints
+## Custom Actions & Non-Resourceful Endpoints
 Your API is bound to need actions that don’t map to standard CRUD operations,
 and Cathode makes this easy to do. You can define your own actions at both the
 version level and the resource level by using the `get`, `post`, `put`, and
@@ -441,133 +434,10 @@ Cathode::Base.version 2 do
   resources :sales, actions: [:index]
 end
 ```
----
 
-*All functionality below is not yet implemented completely.*
-
----
-
-## Querying
-Cathode’s querying functionality can be used to send robust read-only queries
-to your API. To allow querying a resource, make sure the `:query` action is
-available on that resource:
-
-```ruby
-Cathode::Base.define do
-  resources :products, actions: [:query]
-end
-```
-
-Your API client can now make a `GET` request to the `/api/products/query`
-endpoint to initiate a query:
-```bash
-curl api/products/query?query={query}
-```
-
-`{query}` must be a string describing a query according to Cathode’s query DSL.
-
-### The Query DSL
-The DSL consists of groups of clauses. Each query must have at least one clause,
-but may contain as many as you wish.
-
-```
-clause[, clause2[, clause3, …]]
-```
-
-A clause is a group of words that describe the query to be performed on the
-resource. The available clauses are:
-
-* `where {condition}`: use for finding resources that match one or more conditional
-  expressions
-* `sort {sort_field} asc|desc`: after filtering by any `where` clauses, sort
-  the records by `sort_field` and order by `{order}` (the default is `asc`)
-* `limit {max_records}`: return as many as `max_records` records
-
-### Conditional Expressions
-The `where` clause supports a wide variety of expressions.
-
-* `{field} before|after {time}`: find records whose `field` attribute is before
-  or after a given `time`. `time` is run through [Chronic](https://github.com/mojombo/chronic),
-  so supports many natural ways of specifying times.
-* `{field} <, <=, ==, !=, >=, > {value}`: find records whose `{field}` attribute
-  is (respectively) less than, less than or equal to, equal to, not equal to,
-  greater than or equal to, or greater than, the given `value`. 
-* `{field} in [{value1, value2, …}]`: find records whose `{field}` attribute is
-  in the given array
-* `{field} !in [{value1, value2, …}]`: find records whose `{field}` attribute is
-  not in the given array
-
-`{field}` itself can also be a `where` clause, adding the ability to use
-sub-queries.
-
-If a `where`, `sort`, or `limit` keyword is not in a clause, the assumption is
-that it’s a `where` clause.
-
-### Examples
-```bash
-# the past week’s sales
-curl api/sales/query?query='where created_at after 1 week ago'
-
-# products with more than 5 sales
-curl api/products/query?query='where sales.count > 5'
-
-# products sorted by name ordered Z-A limited to 20 records
-curl api/products/query?query='sort name desc, limit 5'
-
-# products with ‘battery’ in their name
-curl api/products/query?query='where {battery} in name'
-
-# products without ‘battery’ in their name that haven’t had a sale in the past month
-curl api/products/query?query='
-  {battery} !in name,
-  sales.where(created_at after 1 month ago).count == 0
-'
-
-# the 5 best-selling products that cost between $200-$500
-curl api/products/query?query='
-  cost >= 200,
-  cost <= 500,
-  sort sales.count desc,
-  limit 5
-'
-```
-
-## Documentation & Changelogs
-By sticking to Cathode’s versioning scheme, you tell it a lot about your API. So
-much, in fact, that we can use it to automatically generate documentation for
-all versions of your API and generate a changelog. Running `rake cathode:docs` will
-generate the documentation at `docs/api/1.0.0`, `docs/api/1.1.0`,
-`docs/api/2.0.0`, and `docs/api/2.1.0`. It will also automatically add a
-`Changelog`:
-
-```markdown
-# Changelog
-## Version 2.1.0
-Checks user permission in `sales#show`.
-
-## Version 2.0.0
-Removes the `search` endpoint from `products` resource.
-
-## Version 1.1.0
-Adds `sales` resource with the following endpoints:
-- `GET /api/sales`
-- `GET /api/sales/{id}`
-- `GET /api/sales/search`
-- `POST /api/sales`
-- `PUT /api/sales/{id}`
-- `DELETE /api/sales/{id}`
-
-## Version 1.0.0
-Initial release
-
-Adds `products` resource with the following endpoints:
-- `GET /api/products`
-- `GET /api/products/{id}`
-- `GET /api/products/search`
-- `POST /api/products`
-- `PUT /api/products/{id}`
-- `DELETE /api/products/{id}`
-```
+## License
+Cathode is licensed under the MIT license. See
+[LICENSE](https://github.com/mobyinc/Cathode/blob/master/LICENSE).
 
 ## Related Reading & Projects
 * [Versionist](https://github.com/bploetz/versionist)
