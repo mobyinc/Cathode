@@ -110,12 +110,6 @@ describe 'API' do
       end
     end
 
-    describe 'resources with only some actions' do
-      it 'does not add the non-specified actions' do
-        pending
-      end
-    end
-
     describe 'to a nonexistent endpoint' do
       subject { make_request :get, 'api/boxes', nil, '1.5.0' }
 
