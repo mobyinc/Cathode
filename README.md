@@ -35,11 +35,19 @@ resourceful applications.
 * Deprecation messages
 * Auto-documentation / changelog
 * Support for other ORMs
-* Travis CI
 * Support for Rails 3.2 + StrongParams gem
 * Support for multiple API instances
 
 ## Getting Started
+### Requirements
+Cathode currently requires Rails 4.0 or higher. (We hope to support 3.2 in the
+future.) Since ActiveSupport requires Ruby 1.9.3 or higher, so does Cathode. So
+you need:
+
+* Ruby >= 1.9.3
+* Rails >= 4.0
+* ActiveRecord (more ORMs will be supported in the future)
+
 Install the gem:
 
 ```bash
