@@ -126,6 +126,15 @@ module Cathode
       resource.parent.name.to_s.singularize
     end
 
+    def record
+      if resource.singular
+        parent_model = resource.parent.model.find(parent_resource_id)
+        parent_model.send resource.name
+      else
+        model.find params[:id]
+      end
+    end
+
     def body(value = Hash.new, &block)
       return if _body.present?
       @_body = block_given? ? block.call : value
