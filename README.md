@@ -3,6 +3,8 @@ systems.**
 
 # Cathode
 [![Documentation](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/github/mobyinc/Cathode/master/frames)
+[![Coverage
+Status](https://coveralls.io/repos/mobyinc/Cathode/badge.png)](https://coveralls.io/r/mobyinc/Cathode)
 
 Cathode is a gem for Rails projects that generates API boilerplate for
 resourceful applications.
@@ -29,7 +31,6 @@ resourceful applications.
 * Auto-documentation / changelog
 * Support for other ORMs
 * Travis CI
-* Test coverage
 * Code Climate
 * Support for Rails 3.2 + StrongParams gem
 * Support for multiple API instances
