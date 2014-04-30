@@ -7,7 +7,7 @@ stable**. Things are changing rapidly; the API will be stabilized in version
 # Cathode
 [![Gem Version](https://badge.fury.io/rb/cathode.svg)](http://badge.fury.io/rb/cathode)
 [![Build Status](https://travis-ci.org/mobyinc/Cathode.svg)](https://travis-ci.org/mobyinc/Cathode)
-[![Documentation](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/github/mobyinc/Cathode/master/frames)
+[![Documentation](http://img.shields.io/badge/yard-docs-blue.svg)](http://rubydoc.info/gems/cathode/0.1.0/frames)
 [![Coverage Status](https://coveralls.io/repos/mobyinc/Cathode/badge.png)](https://coveralls.io/r/mobyinc/Cathode)
 [![Code Climate](https://codeclimate.com/github/mobyinc/Cathode.png)](https://codeclimate.com/github/mobyinc/Cathode)
 [![Dependency Status](https://gemnasium.com/mobyinc/Cathode.svg)](https://gemnasium.com/mobyinc/Cathode)
