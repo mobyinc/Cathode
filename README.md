@@ -43,13 +43,17 @@ The full documentation is [here](http://rubydoc.info/github/mobyinc/Cathode/mast
 
 ## Getting Started
 ### Requirements
-Cathode currently requires Rails 4.0 or higher. (We hope to support 3.2 in the
-future.) Since ActiveSupport requires Ruby 1.9.3 or higher, so does Cathode. So
-you need:
 
 * Ruby >= 1.9.3
-* Rails >= 4.0
+* Rails >= 4.0 (we hope to support Rails 3.2 in the future)
 * ActiveRecord (more ORMs will be supported in the future)
+
+### Supported Database Adapters
+Cathode supports (and is tested against) the following adapters:
+
+* SQLite3
+* MySQL
+* PostgreSQL
 
 ### Installation
 Install the gem:
