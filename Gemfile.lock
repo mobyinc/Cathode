@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cathode (0.1.0)
+    cathode (0.1.1)
       rack-cors (~> 0.2.9)
       rails (~> 4.0.0)
       ruby_deep_clone (~> 0.6.0)
@@ -76,6 +76,7 @@ GEM
     parser (2.1.7)
       ast (~> 1.1)
       slop (~> 3.4, >= 3.4.5)
+    pg (0.17.1)
     polyglot (0.3.4)
     powerpack (0.0.9)
     pry (0.9.12.6)
@@ -174,6 +175,7 @@ DEPENDENCIES
   coveralls (~> 0.7.0)
   factory_girl_rails (~> 4.4.1)
   mysql2
+  pg
   pry-debugger (~> 0.2.2)
   rspec-rails (~> 2.14.2)
   rubocop (~> 0.20.1)

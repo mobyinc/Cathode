@@ -6,6 +6,11 @@ mysql: &mysql
   username: root
   password:
 
+postgresql: &postgresql
+  adapter: postgresql
+  database: travis_ci_test
+  username: postgres
+
 defaults: &defaults
   database: db/<%= ENV['RAILS_ENV'] %>
   pool: 5
