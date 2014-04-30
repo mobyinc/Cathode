@@ -1,14 +1,11 @@
 ENV['RAILS_ENV'] ||= 'test'
 
-require 'coveralls'
-Coveralls.wear!
-
 require File.expand_path('../dummy/config/environment.rb',  __FILE__)
 require 'rspec/rails'
 require 'rspec/autorun'
 require 'factory_girl_rails'
 require 'timecop'
-require 'pry'
+require 'pry' if Gem::Specification::find_all_by_name('pry').any?
 
 Rails.backtrace_cleaner.remove_silencers!
 
@@ -23,6 +20,8 @@ RSpec.configure do |config|
   config.order = 'random'
   config.include FactoryGirl::Syntax::Methods
   config.include SpecHelpers
+
+  puts "Testing against database adapter: #{ActiveRecord::Base.connection_config[:adapter]}"
 
   config.after(:each) do
     Cathode::BaseController.subclasses.each do |controller|

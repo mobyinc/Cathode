@@ -1,0 +1,20 @@
+sqlite: &sqlite
+  adapter: sqlite3
+
+mysql: &mysql
+  adapter: mysql2
+  username: root
+  password:
+
+defaults: &defaults
+  database: db/<%= ENV['RAILS_ENV'] %>
+  pool: 5
+  timeout: 5000
+  host: localhost
+  <<: *<%= ENV['DB'] || 'sqlite' %>
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults

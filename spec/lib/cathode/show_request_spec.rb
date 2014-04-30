@@ -10,7 +10,7 @@ describe Cathode::ShowRequest do
     end
   end
 
-  let(:params) { { id: 3 } }
+  let(:params) { { id: Product.all[2] } }
   let!(:products) { create_list(:product, 3) }
 
   it 'sets status as ok' do

@@ -28,7 +28,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry-debugger', '~> 0.2.2'
   s.add_development_dependency 'rspec-rails', '~> 2.14.2'
   s.add_development_dependency 'rubocop', '~> 0.20.1'
-  s.add_development_dependency 'sqlite3', '~> 1.3.9'
   s.add_development_dependency 'timecop', '~> 0.7.1'
   s.add_development_dependency 'yard', '~> 0.8.7'
 end

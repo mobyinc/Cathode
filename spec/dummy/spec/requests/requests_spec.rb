@@ -4,7 +4,9 @@ def make_request(method, path, params = nil, version = '1.0.0')
   send(method, path, params,  'Accept-Version' => version)
 end
 
-def request_spec(method, path, params = nil, &block)
+def request_spec(method, pre_path, params = nil, &block)
+  let(:path) { pre_path.is_a?(String) ? pre_path : instance_eval(&pre_path) }
+
   context 'without version header' do
     subject { send(method, path, params) }
 
@@ -42,7 +44,7 @@ describe 'API' do
 
     it 'makes a request' do
       make_request :get, 'api/products'
-      expect(response.body).to eq(products.to_json)
+      expect(JSON.parse(response.body).map { |i| i['title'] }).to eq(products.map(&:title))
     end
   end
 
@@ -67,16 +69,16 @@ describe 'API' do
         request_spec :get, 'api/products', nil do
           it 'responds with all records' do
             subject
-            expect(response.body).to eq(products.to_json)
+            expect(JSON.parse(response.body).map { |i| i['title'] }).to eq(products.map(&:title))
           end
         end
       end
 
       describe 'show' do
-        request_spec :get, 'api/products/1' do
+        request_spec :get, proc { "api/products/#{products.first.id}" } do
           it 'responds with all records' do
             subject
-            expect(response.body).to eq(products.first.to_json)
+            expect(JSON.parse(response.body)['title']).to eq(products.first.title)
           end
         end
       end
@@ -93,7 +95,7 @@ describe 'API' do
       end
 
       describe 'update' do
-        request_spec :put, 'api/products/1', product: { title: 'goodbye' } do
+        request_spec :put, proc { "api/products/#{products.first.id}" }, product: { title: 'goodbye' } do
           it 'responds with the updated record' do
             subject
             expect(JSON.parse(response.body)['title']).to eq('goodbye')
@@ -102,7 +104,7 @@ describe 'API' do
       end
 
       describe 'destroy' do
-        request_spec :delete, 'api/products/5' do
+        request_spec :delete, proc { "api/products/#{products.last.id}" } do
           it 'responds with success' do
             expect(subject).to eq(200)
           end
@@ -140,7 +142,7 @@ describe 'API' do
       make_request :get, 'api/products', nil, '1.0'
       expect(response.status).to eq(200)
 
-      make_request :get, 'api/products/1', nil, '1.0'
+      make_request :get, "api/products/#{product.id}", nil, '1.0'
       expect(response.status).to eq(200)
 
       make_request :get, 'api/sales', nil, '1.0'
@@ -152,7 +154,7 @@ describe 'API' do
       make_request :get, 'api/sales', nil, '1.1.0'
       expect(response.status).to eq(404)
 
-      make_request :get, 'api/products/1', nil, '1.1.0'
+      make_request :get, "api/products/#{product.id}", nil, '1.1.0'
       expect(response.status).to eq(200)
 
       make_request :get, 'api/products', nil, '1.1.0'
@@ -257,7 +259,7 @@ describe 'API' do
 
     context 'with has_many association' do
       it 'uses the associations to get the records' do
-        make_request :get, 'api/products/1/sales'
+        make_request :get, "api/products/#{product.id}/sales"
         expect(response.status).to eq(200)
         expect(response.body).to eq(Sale.all.to_json)
       end
@@ -265,29 +267,29 @@ describe 'API' do
 
     context 'with has_one association' do
       context ':show' do
-        let!(:payment) { create(:payment, sale: sale) }
+        let!(:payment) { create(:payment, amount: 323, sale: sale) }
 
         it 'gets the association record' do
-          make_request :get, 'api/sales/1/payment'
+          make_request :get, "api/sales/#{sale.id}/payment"
           expect(response.status).to eq(200)
-          expect(response.body).to eq(payment.to_json)
+          expect(JSON.parse(response.body)['amount']).to eq(323)
         end
       end
 
       context ':create' do
-        subject { make_request :post, 'api/sales/1/payment', { payment: { amount: 500 } } }
+        subject { make_request :post, "api/sales/#{sale.id}/payment", { payment: { amount: 500 } } }
 
         it 'adds a new record associated with the parent' do
           expect { subject }.to change(Payment, :count).by(1)
           expect(Payment.last.sale).to eq(sale)
           expect(response.status).to eq(200)
-          expect(response.body).to eq(Payment.last.to_json)
+          expect(JSON.parse(response.body)['amount']).to eq(500)
         end
       end
 
       context ':update' do
         let!(:payment) { create(:payment, amount: 200, sale: sale) }
-        subject { make_request :put, 'api/sales/1/payment', { payment: { amount: 500 } } }
+        subject { make_request :put, "api/sales/#{sale.id}/payment", { payment: { amount: 500 } } }
 
         it 'updates the associated record' do
           expect { subject }.to_not change(Payment, :count).by(1)
@@ -298,7 +300,7 @@ describe 'API' do
 
       context ':destroy' do
         let!(:payment) { create(:payment, amount: 200, sale: sale) }
-        subject { make_request :delete, 'api/sales/1/payment' }
+        subject { make_request :delete, "api/sales/#{sale.id}/payment" }
 
         it 'deletes the associated record' do
           expect { subject }.to change(Payment, :count).by(-1)
@@ -313,9 +315,9 @@ describe 'API' do
         let!(:payment) { create(:payment, sale: sale) }
 
         it 'gets the association record' do
-          make_request :get, 'api/payments/1/sale'
+          make_request :get, "api/payments/#{payment.id}/sale"
           expect(response.status).to eq(200)
-          expect(response.body).to eq(sale.to_json)
+          expect(JSON.parse(response.body)['product_id']).to eq(product.id)
         end
       end
     end
